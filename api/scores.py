@@ -1,307 +1,284 @@
 """
-/api/scores  –  Cricbuzz live + upcoming matches scraper.
-Deployed as Vercel Python serverless function.
-Returns JSON: { status, source, updated_at, matches: [...] }
+/api/scores  – Live + upcoming match list scraped from source.
+Fixes: IPL slug abbreviation → full team name mapping, proper dates, clean JSON.
 """
-
-import re
-import json
-import logging
+import re, json, logging
 from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timezone
-
 import httpx
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
-        "AppleWebKit/605.1.15 (KHTML, like Gecko) "
-        "Version/17.0 Mobile/15E148 Safari/604.1"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Cache-Control": "no-cache",
-    "Referer": "https://www.google.com/",
+UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
+      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17 Mobile/15E148 Safari/604.1")
+HEADERS = {"User-Agent": UA, "Accept": "text/html,*/*", "Accept-Language": "en-US,en;q=0.9",
+           "Cache-Control": "no-cache", "Referer": "https://www.google.com/"}
+
+# ── COMPLETE IPL SLUG → FULL NAME MAP ──────────────────────────────────────
+# Cricbuzz uses abbreviations in URL slugs for IPL teams
+SLUG_TO_TEAM = {
+    # Abbreviations used in Cricbuzz slugs
+    "csk":   "Chennai Super Kings",
+    "mi":    "Mumbai Indians",
+    "rcb":   "Royal Challengers Bengaluru",
+    "kkr":   "Kolkata Knight Riders",
+    "srh":   "Sunrisers Hyderabad",
+    "dc":    "Delhi Capitals",
+    "rr":    "Rajasthan Royals",
+    "pbks":  "Punjab Kings",
+    "lsg":   "Lucknow Super Giants",
+    "gt":    "Gujarat Titans",
+    # Full slug forms
+    "chennai-super-kings":          "Chennai Super Kings",
+    "mumbai-indians":               "Mumbai Indians",
+    "royal-challengers-bengaluru":  "Royal Challengers Bengaluru",
+    "royal-challengers-bangalore":  "Royal Challengers Bengaluru",
+    "kolkata-knight-riders":        "Kolkata Knight Riders",
+    "sunrisers-hyderabad":          "Sunrisers Hyderabad",
+    "delhi-capitals":               "Delhi Capitals",
+    "rajasthan-royals":             "Rajasthan Royals",
+    "punjab-kings":                 "Punjab Kings",
+    "lucknow-super-giants":         "Lucknow Super Giants",
+    "gujarat-titans":               "Gujarat Titans",
+    # International teams
+    "india":         "India",
+    "australia":     "Australia",
+    "england":       "England",
+    "pakistan":      "Pakistan",
+    "south-africa":  "South Africa",
+    "new-zealand":   "New Zealand",
+    "west-indies":   "West Indies",
+    "sri-lanka":     "Sri Lanka",
+    "bangladesh":    "Bangladesh",
+    "afghanistan":   "Afghanistan",
+    "zimbabwe":      "Zimbabwe",
+    "ireland":       "Ireland",
+    "scotland":      "Scotland",
+    "namibia":       "Namibia",
+    "oman":          "Oman",
+    # PSL teams
+    "quetta-gladiators":   "Quetta Gladiators",
+    "karachi-kings":       "Karachi Kings",
+    "lahore-qalandars":    "Lahore Qalandars",
+    "multan-sultans":      "Multan Sultans",
+    "peshawar-zalmi":      "Peshawar Zalmi",
+    "islamabad-united":    "Islamabad United",
 }
 
-CRICBUZZ_LIVE_URL = "https://www.cricbuzz.com/cricket-match/live-scores"
+def resolve_team(slug_part: str) -> str:
+    """Resolve a slug team token (like 'dc', 'mi', 'csk') to full name."""
+    key = slug_part.strip().lower()
+    if key in SLUG_TO_TEAM:
+        return SLUG_TO_TEAM[key]
+    # Try multi-word slug like 'delhi capitals' (after replace - with space)
+    key2 = key.replace(" ", "-")
+    if key2 in SLUG_TO_TEAM:
+        return SLUG_TO_TEAM[key2]
+    # Fall back to title-cased version
+    return slug_part.strip().title()
 
 
-# ─────────────────────────────────────────────────────
-#  HTML scraper helpers
-# ─────────────────────────────────────────────────────
+def extract_vs_from_slug(slug: str) -> tuple[str, str] | tuple[None, None]:
+    """
+    Extract team names from a Cricbuzz slug.
+    Handles both:
+      csk-vs-mi-7th-match-ipl-2026         (abbreviations)
+      delhi-capitals-vs-mumbai-indians-8th  (full slugs)
+    """
+    # Remove leading /live-cricket-scores/ID/ if present
+    clean = re.sub(r'^/live-cricket-scores/\d+/', '', slug)
 
-def _decode_nextjs(html: str) -> str:
-    """Decode Next.js data chunks from Cricbuzz pages."""
+    # Split on '-vs-' first
+    vs_pos = clean.find('-vs-')
+    if vs_pos == -1:
+        return None, None
+
+    t1_slug = clean[:vs_pos]
+    remainder = clean[vs_pos + 4:]
+
+    # t2 ends at ordinal digit or at 'match' or end of meaningful part
+    # Remove match number suffix like '-7th-match-...'
+    t2_end = re.search(r'-\d+(?:st|nd|rd|th)-match|-match-\d+', remainder)
+    t2_slug = remainder[:t2_end.start()] if t2_end else remainder.split('-match-')[0]
+
+    t1 = resolve_team(t1_slug)
+    t2 = resolve_team(t2_slug)
+    return t1, t2
+
+
+def detect_format(slug_lower: str) -> str:
+    if "test" in slug_lower:    return "Test"
+    if "-odi-" in slug_lower or "one-day" in slug_lower: return "ODI"
+    if "-t10-" in slug_lower:   return "T10"
+    return "T20"
+
+
+def is_ipl(slug_lower: str, t1: str = "", t2: str = "") -> bool:
+    IPL_TEAMS = {"Chennai Super Kings","Mumbai Indians","Royal Challengers Bengaluru",
+                 "Royal Challengers Bangalore","Kolkata Knight Riders","Sunrisers Hyderabad",
+                 "Delhi Capitals","Rajasthan Royals","Punjab Kings","Lucknow Super Giants","Gujarat Titans"}
+    if "ipl" in slug_lower or "indian-premier-league" in slug_lower:
+        return True
+    return t1 in IPL_TEAMS or t2 in IPL_TEAMS
+
+
+def parse_score(raw: str) -> dict | None:
+    m = re.match(r"(\d{1,3})(?:/(\d{1,2}))?\s*(?:\(?([\d.]+)\s*(?:Ov|ov|overs?)?\)?)?", raw.strip())
+    if not m: return None
+    return {"r": int(m.group(1)),
+            "w": int(m.group(2)) if m.group(2) is not None else None,
+            "o": m.group(3) or None}
+
+
+def decode_chunks(html: str) -> str:
     chunks = re.findall(r'self\.__next_f\.push\(\[1,"(.*?)"\]\)', html, re.DOTALL)
     out = ""
-    for chunk in chunks:
-        try:
-            out += chunk.encode().decode("unicode_escape")
-        except Exception:
-            out += chunk
+    for c in chunks:
+        try:    out += c.encode().decode("unicode_escape")
+        except: out += c
     return out
 
 
-def _extract_score(raw: str) -> dict | None:
-    """Parse a score string like '154/3 (16.2 Ov)' into structured data."""
-    m = re.match(
-        r"(\d{1,3})(?:/(\d{1,2}))?\s*(?:\(?([\d.]+)\s*(?:Ov|ov|overs?)?\)?)?",
-        raw.strip(),
-    )
-    if not m:
-        return None
-    return {
-        "r": int(m.group(1)),
-        "w": int(m.group(2)) if m.group(2) is not None else None,
-        "o": m.group(3) if m.group(3) else None,
-    }
-
-
-# ─────────────────────────────────────────────────────
-#  LIVE MATCHES  (HTML parsing approach)
-# ─────────────────────────────────────────────────────
-
-def scrape_live_matches() -> list[dict]:
-    """Scrape all current + upcoming matches from Cricbuzz live scores page."""
+def scrape_matches() -> list[dict]:
     try:
-        resp = httpx.get(CRICBUZZ_LIVE_URL, headers=HEADERS, timeout=15, follow_redirects=True)
+        resp = httpx.get("https://www.cricbuzz.com/cricket-match/live-scores",
+                         headers=HEADERS, timeout=18, follow_redirects=True)
         resp.raise_for_status()
-    except Exception as exc:
-        logger.error("Cricbuzz fetch failed: %s", exc)
+    except Exception as e:
+        logger.error("Fetch failed: %s", e)
         return []
 
     html = resp.text
+    nxt  = decode_chunks(html)
     matches: list[dict] = []
-    seen_ids: set[str] = set()
+    seen: set[str] = set()
 
-    # ── Strategy 1: extract from href links  ──────────────────────────────
-    # Cricbuzz match links: /live-cricket-scores/{id}/{slug}
-    links = re.findall(
-        r'href="/live-cricket-scores/(\d+)/([^"]+)"',
-        html,
-    )
-
-    for match_id, slug in links:
-        if match_id in seen_ids:
+    # Extract from href links
+    links = re.findall(r'href="(/live-cricket-scores/(\d+)/([^"]+))"', html)
+    for full_href, match_id, slug in links:
+        if match_id in seen:
             continue
-        seen_ids.add(match_id)
+        seen.add(match_id)
 
-        # Derive team names from slug: "csk-vs-mi-7th-match-ipl-2026"
-        slug_clean = slug.replace("-", " ").lower()
-        vs_m = re.search(r"^(.+?)\s+vs\s+(.+?)\s+(?:\d|match|game)", slug_clean)
-        if not vs_m:
-            vs_m = re.search(r"^(.+?)\s+vs\s+(.+)", slug_clean)
-        if not vs_m:
+        t1, t2 = extract_vs_from_slug(slug)
+        if not t1 or not t2:
             continue
 
-        t1_raw = vs_m.group(1).title().strip()
-        t2_raw = vs_m.group(2).title().strip()
+        slug_lower = slug.lower()
+        fmt      = detect_format(slug_lower)
+        ipl_flag = is_ipl(slug_lower, t1, t2)
 
-        # Determine series/match name from slug tail
-        series_m = re.search(r"\d+(?:st|nd|rd|th)-match-(.+)$", slug)
-        series = series_m.group(1).replace("-", " ").title() if series_m else "Cricket"
+        # Series name from slug tail
+        series_m = re.search(r'\d+(?:st|nd|rd|th)-match-(.+)$', slug)
+        series   = series_m.group(1).replace("-"," ").title() if series_m else slug.split("-match-")[-1].replace("-"," ").title()
 
-        # Detect format
-        fmt = "T20"
-        if "test" in slug_clean:
-            fmt = "Test"
-        elif "odi" in slug_clean:
-            fmt = "ODI"
+        matches.append({
+            "id":          match_id,
+            "name":        f"{t1} vs {t2}, {series}",
+            "slug":        slug,
+            "t1":          t1,
+            "t2":          t2,
+            "series":      series,
+            "matchType":   fmt,
+            "is_ipl":      ipl_flag,
+            "matchStarted":False,
+            "matchEnded":  False,
+            "isLive":      False,
+            "status":      "",
+            "score":       [],
+            "venue":       "",
+            "dateTimeGMT": "",
+            "url":         f"https://www.cricbuzz.com/live-cricket-scores/{match_id}/{slug}",
+        })
 
-        # Is it IPL?
-        is_ipl = "ipl" in slug_clean or "indian-premier-league" in slug_clean
+    # Enrich from Next.js data chunks
+    _enrich(nxt, matches)
 
-        matches.append(
-            {
-                "id": match_id,
-                "name": f"{t1_raw} vs {t2_raw}",
-                "slug": slug,
-                "t1": t1_raw,
-                "t2": t2_raw,
-                "series": series,
-                "matchType": fmt,
-                "is_ipl": is_ipl,
-                "matchStarted": False,  # refined below
-                "matchEnded": False,
-                "isLive": False,
-                "status": "",
-                "score": [],
-                "venue": "",
-                "dateTimeGMT": "",
-                "cricbuzz_url": f"https://www.cricbuzz.com/live-cricket-scores/{match_id}/{slug}",
-            }
-        )
+    # Sort: live first, upcoming, done
+    matches.sort(key=lambda m: (0 if m["isLive"] else 2 if m["matchEnded"] else 1))
+    return matches
 
-    # ── Strategy 2: enrich with score/status from Next.js chunks ─────────
-    nxt = _decode_nextjs(html)
 
-    # Live indicators
-    live_ids: set[str] = set()
-    live_markers = re.findall(r'"matchId":(\d+)[^}]*?"status":"([^"]*?LIVE[^"]*?)"', nxt, re.IGNORECASE)
-    for mid, _ in live_markers:
-        live_ids.add(mid)
-
-    # Also mark complete matches
-    done_ids: set[str] = set()
-    done_markers = re.findall(r'"matchId":(\d+)[^}]*?"status":"([^"]*?(?:won by|result|tie|draw)[^"]*?)"', nxt, re.IGNORECASE)
-    for mid, _ in done_markers:
-        done_ids.add(mid)
-
-    # Status text
-    status_map: dict[str, str] = {}
-    for m_id in seen_ids:
-        # Look for status near match id mention
-        pos = nxt.find(f'"{m_id}"')
-        if pos == -1:
-            continue
-        after = nxt[pos: pos + 600]
-        st = re.search(r'"status":"([^"]+)"', after)
-        if st:
-            status_map[m_id] = st.group(1)
-
-    # Score extraction
-    score_map: dict[str, list] = {}
-    for m_id in seen_ids:
-        scores = []
-        pos = nxt.find(f'"{m_id}"')
-        if pos == -1:
-            continue
-        window = nxt[pos: pos + 1200]
-        # Find score strings like "154/3 (16.2 Ov)"
-        raw_scores = re.findall(
-            r'(?:"score"|"liveScore"|"score1"|"score2")\s*:\s*"([^"]+)"',
-            window,
-        )
-        for rs in raw_scores:
-            parsed = _extract_score(rs)
-            if parsed:
-                scores.append(parsed)
-        if scores:
-            score_map[m_id] = scores
-
-    # Venue
-    venue_map: dict[str, str] = {}
-    for m_id in seen_ids:
-        pos = nxt.find(f'"{m_id}"')
-        if pos == -1:
-            continue
-        window = nxt[pos: pos + 800]
-        ven = re.search(r'"(?:venue|ground|stadium)"\s*:\s*"([^"]+)"', window, re.IGNORECASE)
-        if ven:
-            venue_map[m_id] = ven.group(1)
-
-    # Apply enrichments
+def _enrich(nxt: str, matches: list[dict]):
+    """Fill in isLive/matchEnded/status/score/venue/date from Next.js chunk data."""
     for m in matches:
         mid = m["id"]
-        m["isLive"] = mid in live_ids
-        m["matchStarted"] = mid in live_ids or mid in done_ids
-        m["matchEnded"] = mid in done_ids
-        m["status"] = status_map.get(mid, "")
-        m["score"] = score_map.get(mid, [])
-        m["venue"] = venue_map.get(mid, "")
-
-    # ── Strategy 3: simple fallback with classic HTML selectors ──────────
-    if not matches:
-        matches = _scrape_fallback(html)
-
-    # Sort: live first, then upcoming, then done
-    order = {"live": 0, "upcoming": 1, "done": 2}
-
-    def sort_key(m):
-        if m["isLive"]:
-            return 0
-        if m["matchEnded"]:
-            return 2
-        return 1
-
-    matches.sort(key=sort_key)
-    return matches
-
-
-def _scrape_fallback(html: str) -> list[dict]:
-    """Classic regex fallback for older Cricbuzz HTML structure."""
-    matches = []
-    # Match blocks containing two team names
-    blocks = re.findall(
-        r'href="/live-cricket-scores/(\d+)/([^"]+)"[^<]*<[^>]+>[^<]*<[^>]+>([^<]+)</[^>]+>',
-        html,
-    )
-    seen = set()
-    for mid, slug, title in blocks:
-        if mid in seen:
+        pos = nxt.find(f'"{mid}"')
+        if pos == -1:
+            # Try without quotes
+            pos = nxt.find(mid)
+        if pos == -1:
             continue
-        seen.add(mid)
-        vs = re.search(r"(.+?)\s+vs\s+(.+)", title)
-        if not vs:
-            continue
-        matches.append(
-            {
-                "id": mid,
-                "name": title.strip(),
-                "t1": vs.group(1).strip(),
-                "t2": vs.group(2).strip(),
-                "series": slug.replace("-", " ").title(),
-                "matchType": "T20",
-                "is_ipl": "ipl" in slug.lower(),
-                "matchStarted": False,
-                "matchEnded": False,
-                "isLive": False,
-                "status": "",
-                "score": [],
-                "venue": "",
-                "dateTimeGMT": "",
-                "cricbuzz_url": f"https://www.cricbuzz.com/live-cricket-scores/{mid}/{slug}",
-            }
-        )
-    return matches
+        window = nxt[pos: pos + 2000]
 
+        # Live/complete status
+        if re.search(r'"(?:live|status)"\s*:\s*"[^"]*LIVE[^"]*"', window, re.I):
+            m["isLive"] = True; m["matchStarted"] = True
+        if re.search(r'"status"\s*:\s*"[^"]*(?:won by|tied|result|completed)[^"]*"', window, re.I):
+            m["matchEnded"] = True; m["matchStarted"] = True
 
-# ─────────────────────────────────────────────────────
-#  Vercel HTTP handler
-# ─────────────────────────────────────────────────────
+        # Status text
+        st = re.search(r'"status"\s*:\s*"([^"]+)"', window)
+        if st:
+            m["status"] = st.group(1)
+
+        # Scores
+        raw_sc = re.findall(r'"(?:score[12]?|liveScore|runs|score)"\s*:\s*"([\d/]+(?:\s*\([\d.]+\s*(?:Ov)?\))?)"', window)
+        scores = [parse_score(s) for s in raw_sc if parse_score(s)]
+        if scores:
+            m["score"] = scores
+
+        # Venue
+        ven = re.search(r'"(?:venue|ground|stadium)"\s*:\s*"([^"]+)"', window, re.I)
+        if ven:
+            m["venue"] = ven.group(1)
+
+        # Date/time
+        dt = re.search(r'"(?:startDate|matchStartTimestamp|dateTime)"\s*:\s*"?(\d{10,13})"?', window)
+        if dt:
+            ts_raw = int(dt.group(1))
+            if ts_raw > 9999999999:  # milliseconds
+                ts_raw //= 1000
+            try:
+                m["dateTimeGMT"] = datetime.utcfromtimestamp(ts_raw).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+            except Exception:
+                pass
+
+        # Also try ISO date string
+        if not m["dateTimeGMT"]:
+            iso = re.search(r'"(?:startDate|matchDate)"\s*:\s*"(\d{4}-\d{2}-\d{2}T[^"]+)"', window)
+            if iso:
+                m["dateTimeGMT"] = iso.group(1)
+
 
 class handler(BaseHTTPRequestHandler):
-    def log_message(self, *args):
-        pass  # silence default access log
+    def log_message(self, *a): pass
 
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def do_OPTIONS(self):
-        self.send_response(204)
-        self._cors()
-        self.end_headers()
+        self.send_response(204); self._cors(); self.end_headers()
 
     def do_GET(self):
-        qs = parse_qs(urlparse(self.path).query)
-        only = qs.get("filter", [None])[0]  # ?filter=live | upcoming | all
+        qs     = parse_qs(urlparse(self.path).query)
+        filt   = qs.get("filter", [None])[0]
+        matches = scrape_matches()
 
-        matches = scrape_live_matches()
+        if filt == "live":    matches = [m for m in matches if m["isLive"]]
+        elif filt == "upcoming": matches = [m for m in matches if not m["matchStarted"]]
+        elif filt == "ipl":   matches = [m for m in matches if m["is_ipl"]]
 
-        if only == "live":
-            matches = [m for m in matches if m["isLive"]]
-        elif only == "upcoming":
-            matches = [m for m in matches if not m["matchStarted"]]
-        elif only == "ipl":
-            matches = [m for m in matches if m.get("is_ipl")]
-
-        body = json.dumps(
-            {
-                "status": "success" if matches else "empty",
-                "source": "cricbuzz",
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-                "count": len(matches),
-                "matches": matches,
-            },
-            ensure_ascii=False,
-        ).encode("utf-8")
+        body = json.dumps({
+            "status":     "success" if matches else "empty",
+            "source":     "live",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "count":      len(matches),
+            "matches":    matches,
+        }, ensure_ascii=False).encode("utf-8")
 
         self.send_response(200)
         self._cors()
