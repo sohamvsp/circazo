@@ -1,6 +1,6 @@
 """
-/api/scores  – Live + upcoming match list scraped from source.
-Fixes: IPL slug abbreviation → full team name mapping, proper dates, clean JSON.
+/api/scores  — Cricbuzz live + upcoming match scraper.
+Uses HTML section-based detection for reliable live/upcoming classification.
 """
 import re, json, logging
 from http.server import BaseHTTPRequestHandler
@@ -11,126 +11,120 @@ import httpx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-UA = ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
-      "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17 Mobile/15E148 Safari/604.1")
-HEADERS = {"User-Agent": UA, "Accept": "text/html,*/*", "Accept-Language": "en-US,en;q=0.9",
-           "Cache-Control": "no-cache", "Referer": "https://www.google.com/"}
-
-# ── COMPLETE IPL SLUG → FULL NAME MAP ──────────────────────────────────────
-# Cricbuzz uses abbreviations in URL slugs for IPL teams
-SLUG_TO_TEAM = {
-    # Abbreviations used in Cricbuzz slugs
-    "csk":   "Chennai Super Kings",
-    "mi":    "Mumbai Indians",
-    "rcb":   "Royal Challengers Bengaluru",
-    "kkr":   "Kolkata Knight Riders",
-    "srh":   "Sunrisers Hyderabad",
-    "dc":    "Delhi Capitals",
-    "rr":    "Rajasthan Royals",
-    "pbks":  "Punjab Kings",
-    "lsg":   "Lucknow Super Giants",
-    "gt":    "Gujarat Titans",
-    # Full slug forms
-    "chennai-super-kings":          "Chennai Super Kings",
-    "mumbai-indians":               "Mumbai Indians",
-    "royal-challengers-bengaluru":  "Royal Challengers Bengaluru",
-    "royal-challengers-bangalore":  "Royal Challengers Bengaluru",
-    "kolkata-knight-riders":        "Kolkata Knight Riders",
-    "sunrisers-hyderabad":          "Sunrisers Hyderabad",
-    "delhi-capitals":               "Delhi Capitals",
-    "rajasthan-royals":             "Rajasthan Royals",
-    "punjab-kings":                 "Punjab Kings",
-    "lucknow-super-giants":         "Lucknow Super Giants",
-    "gujarat-titans":               "Gujarat Titans",
-    # International teams
-    "india":         "India",
-    "australia":     "Australia",
-    "england":       "England",
-    "pakistan":      "Pakistan",
-    "south-africa":  "South Africa",
-    "new-zealand":   "New Zealand",
-    "west-indies":   "West Indies",
-    "sri-lanka":     "Sri Lanka",
-    "bangladesh":    "Bangladesh",
-    "afghanistan":   "Afghanistan",
-    "zimbabwe":      "Zimbabwe",
-    "ireland":       "Ireland",
-    "scotland":      "Scotland",
-    "namibia":       "Namibia",
-    "oman":          "Oman",
-    # PSL teams
-    "quetta-gladiators":   "Quetta Gladiators",
-    "karachi-kings":       "Karachi Kings",
-    "lahore-qalandars":    "Lahore Qalandars",
-    "multan-sultans":      "Multan Sultans",
-    "peshawar-zalmi":      "Peshawar Zalmi",
-    "islamabad-united":    "Islamabad United",
+HEADERS = {
+    "User-Agent": ("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
+                   "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17 Mobile/15E148 Safari/604.1"),
+    "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Cache-Control": "no-cache",
+    "Referer": "https://www.google.com/",
 }
 
-def resolve_team(slug_part: str) -> str:
-    """Resolve a slug team token (like 'dc', 'mi', 'csk') to full name."""
-    key = slug_part.strip().lower()
-    if key in SLUG_TO_TEAM:
-        return SLUG_TO_TEAM[key]
-    # Try multi-word slug like 'delhi capitals' (after replace - with space)
-    key2 = key.replace(" ", "-")
-    if key2 in SLUG_TO_TEAM:
-        return SLUG_TO_TEAM[key2]
-    # Fall back to title-cased version
-    return slug_part.strip().title()
+# ── FULL TEAM NAME MAPS ──────────────────────────────────────────────────────
+SLUG_MAP = {
+    # IPL abbreviations used in Cricbuzz URL slugs
+    "csk": "Chennai Super Kings",
+    "mi": "Mumbai Indians",
+    "rcb": "Royal Challengers Bengaluru",
+    "kkr": "Kolkata Knight Riders",
+    "srh": "Sunrisers Hyderabad",
+    "dc": "Delhi Capitals",
+    "rr": "Rajasthan Royals",
+    "pbks": "Punjab Kings",
+    "lsg": "Lucknow Super Giants",
+    "gt": "Gujarat Titans",
+    # Full slug forms
+    "chennai-super-kings": "Chennai Super Kings",
+    "mumbai-indians": "Mumbai Indians",
+    "royal-challengers-bengaluru": "Royal Challengers Bengaluru",
+    "royal-challengers-bangalore": "Royal Challengers Bengaluru",
+    "kolkata-knight-riders": "Kolkata Knight Riders",
+    "sunrisers-hyderabad": "Sunrisers Hyderabad",
+    "delhi-capitals": "Delhi Capitals",
+    "rajasthan-royals": "Rajasthan Royals",
+    "punjab-kings": "Punjab Kings",
+    "lucknow-super-giants": "Lucknow Super Giants",
+    "gujarat-titans": "Gujarat Titans",
+    # PSL
+    "karachi-kings": "Karachi Kings",
+    "lahore-qalandars": "Lahore Qalandars",
+    "islamabad-united": "Islamabad United",
+    "multan-sultans": "Multan Sultans",
+    "quetta-gladiators": "Quetta Gladiators",
+    "peshawar-zalmi": "Peshawar Zalmi",
+    "rawalpindiz": "Rawalpindi Zalmi",
+    "hyderabad-kingsmen": "Hyderabad Kingsmen",
+    # International
+    "india": "India",
+    "australia": "Australia",
+    "england": "England",
+    "pakistan": "Pakistan",
+    "south-africa": "South Africa",
+    "new-zealand": "New Zealand",
+    "west-indies": "West Indies",
+    "sri-lanka": "Sri Lanka",
+    "bangladesh": "Bangladesh",
+    "afghanistan": "Afghanistan",
+    "zimbabwe": "Zimbabwe",
+    "ireland": "Ireland",
+    "scotland": "Scotland",
+    "namibia": "Namibia",
+    "oman": "Oman",
+    "usa": "USA",
+    "uae": "UAE",
+    "netherlands": "Netherlands",
+    "kenya": "Kenya",
+    "canada": "Canada",
+    "nepal": "Nepal",
+}
 
+IPL_TEAMS = {
+    "Chennai Super Kings", "Mumbai Indians", "Royal Challengers Bengaluru",
+    "Royal Challengers Bangalore", "Kolkata Knight Riders", "Sunrisers Hyderabad",
+    "Delhi Capitals", "Rajasthan Royals", "Punjab Kings",
+    "Lucknow Super Giants", "Gujarat Titans",
+}
 
-def extract_vs_from_slug(slug: str) -> tuple[str, str] | tuple[None, None]:
-    """
-    Extract team names from a Cricbuzz slug.
-    Handles both:
-      csk-vs-mi-7th-match-ipl-2026         (abbreviations)
-      delhi-capitals-vs-mumbai-indians-8th  (full slugs)
-    """
-    # Remove leading /live-cricket-scores/ID/ if present
-    clean = re.sub(r'^/live-cricket-scores/\d+/', '', slug)
+def resolve(slug: str) -> str:
+    k = slug.strip().lower()
+    if k in SLUG_MAP:
+        return SLUG_MAP[k]
+    # Try with dashes replaced by spaces
+    for key, val in SLUG_MAP.items():
+        if key.replace("-", "") == k.replace("-", ""):
+            return val
+    return slug.strip().title()
 
-    # Split on '-vs-' first
-    vs_pos = clean.find('-vs-')
-    if vs_pos == -1:
+def vs_from_slug(slug: str):
+    """Extract t1, t2 from a slug like 'csk-vs-mi-7th-match-ipl-2026'."""
+    # Remove match number suffix
+    clean = re.sub(r'-\d+(?:st|nd|rd|th)-match.*', '', slug)
+    clean = re.sub(r'-match-\d+.*', '', clean)
+    pos = clean.find('-vs-')
+    if pos < 0:
         return None, None
+    t1_slug = clean[:pos]
+    t2_slug = clean[pos+4:]
+    return resolve(t1_slug), resolve(t2_slug)
 
-    t1_slug = clean[:vs_pos]
-    remainder = clean[vs_pos + 4:]
-
-    # t2 ends at ordinal digit or at 'match' or end of meaningful part
-    # Remove match number suffix like '-7th-match-...'
-    t2_end = re.search(r'-\d+(?:st|nd|rd|th)-match|-match-\d+', remainder)
-    t2_slug = remainder[:t2_end.start()] if t2_end else remainder.split('-match-')[0]
-
-    t1 = resolve_team(t1_slug)
-    t2 = resolve_team(t2_slug)
-    return t1, t2
-
-
-def detect_format(slug_lower: str) -> str:
-    if "test" in slug_lower:    return "Test"
-    if "-odi-" in slug_lower or "one-day" in slug_lower: return "ODI"
-    if "-t10-" in slug_lower:   return "T10"
+def fmt_from_slug(slug: str) -> str:
+    s = slug.lower()
+    if "test" in s:    return "Test"
+    if "-odi-" in s or "one-day" in s: return "ODI"
+    if "-t10-" in s:   return "T10"
     return "T20"
 
-
-def is_ipl(slug_lower: str, t1: str = "", t2: str = "") -> bool:
-    IPL_TEAMS = {"Chennai Super Kings","Mumbai Indians","Royal Challengers Bengaluru",
-                 "Royal Challengers Bangalore","Kolkata Knight Riders","Sunrisers Hyderabad",
-                 "Delhi Capitals","Rajasthan Royals","Punjab Kings","Lucknow Super Giants","Gujarat Titans"}
-    if "ipl" in slug_lower or "indian-premier-league" in slug_lower:
+def is_ipl(slug: str, t1: str, t2: str) -> bool:
+    if "ipl" in slug.lower() or "indian-premier-league" in slug.lower():
         return True
     return t1 in IPL_TEAMS or t2 in IPL_TEAMS
 
-
-def parse_score(raw: str) -> dict | None:
-    m = re.match(r"(\d{1,3})(?:/(\d{1,2}))?\s*(?:\(?([\d.]+)\s*(?:Ov|ov|overs?)?\)?)?", raw.strip())
+def parse_score(raw: str):
+    m = re.match(r"(\d{1,3})(?:/(\d{1,2}))?\s*(?:\(?([\d.]+)\s*(?:Ov|ov)?\)?)?", raw.strip())
     if not m: return None
     return {"r": int(m.group(1)),
-            "w": int(m.group(2)) if m.group(2) is not None else None,
+            "w": int(m.group(2)) if m.group(2) else None,
             "o": m.group(3) or None}
-
 
 def decode_chunks(html: str) -> str:
     chunks = re.findall(r'self\.__next_f\.push\(\[1,"(.*?)"\]\)', html, re.DOTALL)
@@ -141,10 +135,10 @@ def decode_chunks(html: str) -> str:
     return out
 
 
-def scrape_matches() -> list[dict]:
+def scrape_matches() -> list:
     try:
         resp = httpx.get("https://www.cricbuzz.com/cricket-match/live-scores",
-                         headers=HEADERS, timeout=18, follow_redirects=True)
+                         headers=HEADERS, timeout=20, follow_redirects=True)
         resp.raise_for_status()
     except Exception as e:
         logger.error("Fetch failed: %s", e)
@@ -152,29 +146,100 @@ def scrape_matches() -> list[dict]:
 
     html = resp.text
     nxt  = decode_chunks(html)
-    matches: list[dict] = []
-    seen: set[str] = set()
 
-    # Extract from href links
-    links = re.findall(r'href="(/live-cricket-scores/(\d+)/([^"]+))"', html)
-    for full_href, match_id, slug in links:
+    # ── SECTION-BASED LIVE DETECTION ────────────────────────────────────────
+    # Split HTML into: live section, upcoming section, recent section
+    # Cricbuzz marks sections with these text markers
+    markers = {
+        "live":     ["Live Matches", "Live Cricket Scores", "cb-text-live"],
+        "upcoming": ["Upcoming Matches", "Schedule", "Fixtures"],
+        "recent":   ["Recent Matches", "Recent Results", "Completed"],
+    }
+
+    # Find section boundaries in raw HTML
+    def find_first(texts, start=0):
+        pos = len(html) + 1
+        for t in texts:
+            p = html.find(t, start)
+            if 0 < p < pos:
+                pos = p
+        return pos if pos <= len(html) else -1
+
+    live_start     = find_first(markers["live"])
+    upcoming_start = find_first(markers["upcoming"])
+    recent_start   = find_first(markers["recent"])
+
+    # Build sections safely
+    def section(start, end):
+        if start < 0: return ""
+        if end < 0: return html[start:]
+        return html[start:end]
+
+    # Order: live → upcoming → recent
+    # If live not found but upcoming found, assume everything before upcoming is live
+    if live_start < 0 and upcoming_start > 0:
+        live_section     = html[:upcoming_start]
+        upcoming_section = section(upcoming_start, recent_start)
+    else:
+        live_section     = section(live_start, upcoming_start if upcoming_start > 0 else recent_start)
+        upcoming_section = section(upcoming_start, recent_start)
+
+    recent_section = section(recent_start, -1)
+
+    # Extract match IDs from each section
+    def ids_from(sec): 
+        return set(re.findall(r'/live-cricket-scores/(\d+)/', sec))
+
+    live_ids     = ids_from(live_section)
+    upcoming_ids = ids_from(upcoming_section)
+    recent_ids   = ids_from(recent_section)
+
+    # Also detect live from page-level "LIVE" badge near match link
+    # (<span class="cb-text-live") within 800 chars of the link
+    nxt_live_ids = set()
+    for m in re.finditer(r'/live-cricket-scores/(\d+)/', html):
+        mid = m.group(1)
+        window = html[max(0, m.start()-100): m.end()+800]
+        if re.search(r'(?:cb-text-live|"LIVE"|>LIVE<)', window, re.I):
+            nxt_live_ids.add(mid)
+
+    live_ids |= nxt_live_ids
+
+    # Also check Next.js chunks for live status
+    for m in re.finditer(r'"matchId"\s*:\s*"?(\d+)"?', nxt):
+        mid = m.group(1)
+        window = nxt[m.start(): m.start()+500]
+        if re.search(r'"status"\s*:\s*"[^"]*(?:LIVE|live|Live)[^"]*"', window):
+            live_ids.add(mid)
+            upcoming_ids.discard(mid)
+
+    # ── EXTRACT ALL MATCH LINKS ──────────────────────────────────────────────
+    links = re.findall(r'/live-cricket-scores/(\d+)/([^"?\s]+)', html)
+    seen: set = set()
+    matches: list = []
+
+    for match_id, slug in links:
         if match_id in seen:
             continue
         seen.add(match_id)
 
-        t1, t2 = extract_vs_from_slug(slug)
+        t1, t2 = vs_from_slug(slug)
         if not t1 or not t2:
             continue
 
-        slug_lower = slug.lower()
-        fmt      = detect_format(slug_lower)
-        ipl_flag = is_ipl(slug_lower, t1, t2)
+        slug_lower  = slug.lower()
+        fmt         = fmt_from_slug(slug_lower)
+        ipl_flag    = is_ipl(slug_lower, t1, t2)
+        is_live     = match_id in live_ids
+        is_ended    = match_id in recent_ids and match_id not in live_ids
+        is_upcoming = not is_live and not is_ended
 
         # Series name from slug tail
         series_m = re.search(r'\d+(?:st|nd|rd|th)-match-(.+)$', slug)
-        series   = series_m.group(1).replace("-"," ").title() if series_m else slug.split("-match-")[-1].replace("-"," ").title()
+        series   = (series_m.group(1).replace("-", " ").title() if series_m
+                    else slug.split("-match-")[-1].replace("-", " ").title())
 
-        matches.append({
+        entry = {
             "id":          match_id,
             "name":        f"{t1} vs {t2}, {series}",
             "slug":        slug,
@@ -183,74 +248,77 @@ def scrape_matches() -> list[dict]:
             "series":      series,
             "matchType":   fmt,
             "is_ipl":      ipl_flag,
-            "matchStarted":False,
-            "matchEnded":  False,
-            "isLive":      False,
+            "matchStarted": is_live or is_ended,
+            "matchEnded":  is_ended,
+            "isLive":      is_live,
             "status":      "",
             "score":       [],
             "venue":       "",
             "dateTimeGMT": "",
             "url":         f"https://www.cricbuzz.com/live-cricket-scores/{match_id}/{slug}",
-        })
+        }
+        matches.append(entry)
 
-    # Enrich from Next.js data chunks
+    # ── ENRICH FROM NEXT.JS CHUNKS ───────────────────────────────────────────
     _enrich(nxt, matches)
 
-    # Sort: live first, upcoming, done
+    # Sort: live → upcoming → ended
     matches.sort(key=lambda m: (0 if m["isLive"] else 2 if m["matchEnded"] else 1))
     return matches
 
 
-def _enrich(nxt: str, matches: list[dict]):
-    """Fill in isLive/matchEnded/status/score/venue/date from Next.js chunk data."""
+def _enrich(nxt: str, matches: list):
     for m in matches:
         mid = m["id"]
+        # Find position in nxt
         pos = nxt.find(f'"{mid}"')
-        if pos == -1:
-            # Try without quotes
-            pos = nxt.find(mid)
-        if pos == -1:
-            continue
-        window = nxt[pos: pos + 2000]
-
-        # Live/complete status
-        if re.search(r'"(?:live|status)"\s*:\s*"[^"]*LIVE[^"]*"', window, re.I):
-            m["isLive"] = True; m["matchStarted"] = True
-        if re.search(r'"status"\s*:\s*"[^"]*(?:won by|tied|result|completed)[^"]*"', window, re.I):
-            m["matchEnded"] = True; m["matchStarted"] = True
+        if pos < 0: pos = nxt.find(mid)
+        if pos < 0: continue
+        window = nxt[pos: pos+2000]
 
         # Status text
-        st = re.search(r'"status"\s*:\s*"([^"]+)"', window)
+        st = re.search(r'"status"\s*:\s*"([^"]{3,200})"', window)
         if st:
-            m["status"] = st.group(1)
+            sv = st.group(1).strip()
+            if sv and sv not in ("", "null"):
+                m["status"] = sv
+                # Override live detection from status text
+                if re.search(r'\bLIVE\b|\blive\b|\bLive\b|in progress', sv):
+                    m["isLive"] = True; m["matchStarted"] = True; m["matchEnded"] = False
+                elif re.search(r'won by|tied|no result|abandoned', sv, re.I):
+                    m["matchEnded"] = True; m["matchStarted"] = True
+                    if m["isLive"]: m["isLive"] = False
 
         # Scores
-        raw_sc = re.findall(r'"(?:score[12]?|liveScore|runs|score)"\s*:\s*"([\d/]+(?:\s*\([\d.]+\s*(?:Ov)?\))?)"', window)
-        scores = [parse_score(s) for s in raw_sc if parse_score(s)]
+        score_raws = re.findall(
+            r'"(?:score[12]?|liveScore|inningScore)"\s*:\s*"([\d]+/[\d]+(?:\s*\([\d.]+\s*Ov?\))?)"',
+            window)
+        scores = [parse_score(s) for s in score_raws if parse_score(s)]
         if scores:
             m["score"] = scores
+            # If has score but marked upcoming, upgrade to started
+            if not m["matchStarted"]:
+                m["matchStarted"] = True
+                if not m["matchEnded"]:
+                    m["isLive"] = True
 
         # Venue
-        ven = re.search(r'"(?:venue|ground|stadium)"\s*:\s*"([^"]+)"', window, re.I)
-        if ven:
-            m["venue"] = ven.group(1)
+        ven = re.search(r'"(?:venue|ground|stadium)"\s*:\s*"([^"]{5,100})"', window, re.I)
+        if ven: m["venue"] = ven.group(1)
 
-        # Date/time
-        dt = re.search(r'"(?:startDate|matchStartTimestamp|dateTime)"\s*:\s*"?(\d{10,13})"?', window)
+        # Timestamp → ISO date
+        dt = re.search(r'"(?:startDate|matchStartTimestamp|dateTimeGMT|startTime)"\s*:\s*"?(\d{10,13})"?', window)
         if dt:
-            ts_raw = int(dt.group(1))
-            if ts_raw > 9999999999:  # milliseconds
-                ts_raw //= 1000
+            ts = int(dt.group(1))
+            if ts > 9_999_999_999: ts //= 1000
             try:
-                m["dateTimeGMT"] = datetime.utcfromtimestamp(ts_raw).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
+                m["dateTimeGMT"] = datetime.utcfromtimestamp(ts).strftime("%Y-%m-%dT%H:%M:%S") + "Z"
             except Exception:
                 pass
 
-        # Also try ISO date string
         if not m["dateTimeGMT"]:
-            iso = re.search(r'"(?:startDate|matchDate)"\s*:\s*"(\d{4}-\d{2}-\d{2}T[^"]+)"', window)
-            if iso:
-                m["dateTimeGMT"] = iso.group(1)
+            iso = re.search(r'"(?:startDate|matchDate|dateTimeGMT)"\s*:\s*"(\d{4}-\d{2}-\d{2}T[^"]{5,30})"', window)
+            if iso: m["dateTimeGMT"] = iso.group(1)
 
 
 class handler(BaseHTTPRequestHandler):
@@ -259,18 +327,19 @@ class handler(BaseHTTPRequestHandler):
     def _cors(self):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
     def do_OPTIONS(self):
         self.send_response(204); self._cors(); self.end_headers()
 
     def do_GET(self):
-        qs     = parse_qs(urlparse(self.path).query)
-        filt   = qs.get("filter", [None])[0]
+        qs    = parse_qs(urlparse(self.path).query)
+        filt  = qs.get("filter", [None])[0]
         matches = scrape_matches()
 
-        if filt == "live":    matches = [m for m in matches if m["isLive"]]
+        if filt == "live":     matches = [m for m in matches if m["isLive"]]
         elif filt == "upcoming": matches = [m for m in matches if not m["matchStarted"]]
-        elif filt == "ipl":   matches = [m for m in matches if m["is_ipl"]]
+        elif filt == "ipl":    matches = [m for m in matches if m["is_ipl"]]
 
         body = json.dumps({
             "status":     "success" if matches else "empty",
@@ -280,10 +349,9 @@ class handler(BaseHTTPRequestHandler):
             "matches":    matches,
         }, ensure_ascii=False).encode("utf-8")
 
-        self.send_response(200)
-        self._cors()
+        self.send_response(200); self._cors()
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "s-maxage=25, stale-while-revalidate=30")
+        self.send_header("Cache-Control", "s-maxage=20, stale-while-revalidate=25")
         self.end_headers()
         self.wfile.write(body)
