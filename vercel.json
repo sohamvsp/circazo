@@ -14,7 +14,7 @@
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
-        { "key": "Cache-Control", "value": "s-maxage=25, stale-while-revalidate=30" }
+        { "key": "Cache-Control", "value": "s-maxage=20, stale-while-revalidate=25" }
       ]
     }
   ]
