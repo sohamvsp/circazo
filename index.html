@@ -5,42 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#111"/>
-<!-- SEO -->
 <title>Circazo – IPL 2026 Live Cricket Scores, Scorecard & Ball by Ball</title>
-<meta name="description" content="Follow IPL 2026 live cricket scores, ball-by-ball commentary, full scorecards, batting & bowling analysis. All 10 IPL teams — MI, CSK, RCB, KKR, SRH, DC, RR, PBKS, LSG, GT."/>
-<meta name="keywords" content="IPL 2026 live score, IPL scorecard, cricket live score, CSK MI RCB KKR, IPL ball by ball, cricket score today"/>
+<meta name="description" content="IPL 2026 live cricket scores, ball-by-ball commentary, full scorecards & match analysis. CSK, MI, RCB, KKR, SRH, DC, RR, PBKS, LSG, GT."/>
+<meta name="keywords" content="IPL 2026 live score, IPL scorecard, cricket live score, CSK MI RCB KKR, IPL ball by ball"/>
 <meta property="og:title" content="Circazo – IPL 2026 Live Cricket"/>
-<meta property="og:description" content="Live IPL scores, scorecards, ball-by-ball and full match analysis"/>
-<meta property="og:type" content="website"/>
+<meta property="og:description" content="Live IPL 2026 scores, ball-by-ball commentary & full scorecards"/>
 <meta name="robots" content="index, follow"/>
-<link rel="canonical" href="https://circazo.vercel.app/"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════ RESET ═══════════════════════ */
+/* ━━━━ RESET ━━━━ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{height:100%;font-size:16px}
+html{height:100%}
 body{background:#111;color:#fff;font-family:'Nunito',sans-serif;min-height:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased;overscroll-behavior-y:none}
 img{display:block;max-width:100%}
 button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:none;outline:none;color:inherit}
 ::-webkit-scrollbar{width:2px;height:2px}
 ::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
-/* ═══════════════════════ TOKENS ═══════════════════════ */
+
+/* ━━━━ TOKENS ━━━━ */
 :root{
   --y:#D4FF00;--rl:#FF3B3B;--g:#00E676;--bl:#4A90FF;
   --bg:#111;--bg2:#181818;--bg3:#222;--card:#1D1D1D;
   --border:rgba(255,255,255,.08);--glass:rgba(255,255,255,.06);
   --nav:60px;--bot:60px;--safe:env(safe-area-inset-bottom,0px);
 }
-/* ═══════════════════════ ANIMS ═══════════════════════ */
+
+/* ━━━━ KEYFRAMES ━━━━ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(204,17,17,0)}50%{box-shadow:0 0 28px rgba(204,17,17,.5),0 0 0 1px rgba(204,17,17,.15)}}
 @keyframes ballIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
-@keyframes countPulse{0%,100%{color:var(--y)}50%{color:#fff}}
-/* ═══════════════════════ SPLASH ═══════════════════════ */
+@keyframes tick{0%,100%{color:var(--y)}50%{color:#fff}}
+
+/* ━━━━ SPLASH ━━━━ */
 #splash{position:fixed;inset:0;z-index:900;overflow:hidden;display:flex;flex-direction:column;background:#111;transition:opacity .55s,transform .55s}
 #splash.exit{opacity:0;transform:scale(1.04);pointer-events:none}
 .sp-img{flex:1;position:relative;overflow:hidden;min-height:0}
@@ -62,29 +61,34 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .sp-cta{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-radius:100px;background:var(--y);color:#000;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;border:none;cursor:pointer;box-shadow:0 0 40px rgba(212,255,0,.25);transition:.15s}
 .sp-cta:active{transform:scale(.97)}
 .sp-cta-ic{width:38px;height:38px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center;font-size:17px}
-/* ═══════════════════════ APP ═══════════════════════ */
+
+/* ━━━━ APP ━━━━ */
 #app{display:none;flex-direction:column;min-height:100dvh}
 #app.show{display:flex}
-/* ═══════════════════════ TOPBAR ═══════════════════════ */
-.topbar{position:sticky;top:0;z-index:100;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(17,17,17,.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+
+/* ━━━━ TOPBAR ━━━━ */
+.topbar{position:sticky;top:0;z-index:100;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(17,17,17,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
 .tb-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
 .tb-logo span{color:var(--y)}
 .tb-right{display:flex;gap:8px}
-.tb-btn{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid var(--border);font-size:16px;transition:.15s;position:relative}
+.tb-btn{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.07);border:1px solid var(--border);font-size:16px;position:relative;transition:.15s}
 .tb-btn:active{opacity:.6;transform:scale(.92)}
 .nb-dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--rl);border:1.5px solid #111}
-/* ═══════════════════════ TABS ═══════════════════════ */
+
+/* ━━━━ TABS ━━━━ */
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none;background:rgba(17,17,17,.92);backdrop-filter:blur(24px);position:sticky;top:var(--nav);z-index:99;border-bottom:1px solid var(--border);padding:0 6px}
 .tabs::-webkit-scrollbar{display:none}
 .tab{padding:10px 16px 12px;font-size:13px;font-weight:800;color:#555;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0;transition:.2s}
 .tab.on{color:var(--y);border-bottom-color:var(--y)}
 .tab:active{opacity:.6}
-/* ═══════════════════════ PAGE ═══════════════════════ */
+
+/* ━━━━ PAGE ━━━━ */
 .page{flex:1;overflow-y:auto;padding-bottom:calc(var(--bot) + var(--safe) + 12px)}
 .page::-webkit-scrollbar{display:none}
 .tp{display:none}
 .tp.on{display:block}
-/* ═══════════════════════ SECTION ═══════════════════════ */
+
+/* ━━━━ SECTION ━━━━ */
 .sec{padding:18px 14px 0}
 .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .sec-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.5px}
@@ -92,31 +96,37 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .live-lbl::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--rl);animation:pulse .9s infinite}
 .sec-more{font-size:13px;font-weight:800;color:var(--y)}
 .cd-txt{font-size:11px;font-weight:700;color:#333;margin-right:4px}
-/* ═══════════════════════ IPL TEAMS ROW ═══════════════════════ */
-.ipl-teams-scroll{display:flex;gap:10px;padding:0 14px;overflow-x:auto;scrollbar-width:none;margin-bottom:20px}
-.ipl-teams-scroll::-webkit-scrollbar{display:none}
-.ipl-team-chip{
-  display:flex;flex-direction:column;align-items:center;gap:5px;
-  flex-shrink:0;cursor:pointer;transition:.18s;
-}
-.ipl-team-chip:active{transform:scale(.93)}
-.ipl-team-logo{
-  width:44px;height:44px;border-radius:50%;
-  overflow:hidden;border:2px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.05);
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   TEAM LOGO  — FIXED APPROACH
+   Always shows colored circle + abbr text.
+   Logo image overlays on top (opaque bg hides text through transparent areas).
+   onerror just hides the img — no outerHTML injection.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.tlogo{
+  border-radius:50%;overflow:hidden;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
+  position:relative;
+  border:2px solid rgba(255,255,255,.1);
 }
-.ipl-team-logo img{width:100%;height:100%;object-fit:contain;padding:5px}
-.ipl-team-logo .ipl-fb{font-family:'Bebas Neue',sans-serif;font-size:11px;color:rgba(255,255,255,.7)}
-.ipl-team-name{font-size:9px;font-weight:800;color:#555;letter-spacing:.3px;text-align:center}
-/* ═══════════════════════ MATCH CARD ═══════════════════════ */
+.tlogo-abbr{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-weight:800;line-height:1;
+  pointer-events:none;z-index:1;
+}
+.tlogo img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;z-index:2;border-radius:50%;
+}
+
+/* ━━━━ MATCH CARD ━━━━ */
 .ml{display:flex;flex-direction:column;gap:12px}
 .mc{border-radius:18px;overflow:hidden;cursor:pointer;animation:fadeUp .5s ease both;transition:transform .18s}
 .mc:active{transform:scale(.98)}
 .mc.live{animation:glow 3s ease-in-out infinite,fadeUp .5s ease both}
 .mc-in{padding:14px;border-radius:18px;backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09)}
-.mc.live .mc-in{background:linear-gradient(140deg,rgba(145,10,10,.6),rgba(65,5,5,.75));border:1px solid rgba(255,80,80,.18)}
-/* top bar */
+.mc.live .mc-in{background:linear-gradient(140deg,rgba(145,10,10,.62),rgba(65,5,5,.78));border:1px solid rgba(255,80,80,.2)}
+
 .mc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .mc-ser{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:5px;flex:1;min-width:0}
 .mc-ser-txt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -124,40 +134,31 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .bdg-live{padding:3px 9px;border-radius:100px;font-size:9px;font-weight:800;letter-spacing:1px;background:var(--rl);color:#fff;animation:pulse .9s infinite;flex-shrink:0}
 .bdg-up{padding:3px 9px;border-radius:100px;font-size:9px;font-weight:800;background:rgba(212,255,0,.1);border:1px solid rgba(212,255,0,.22);color:var(--y);flex-shrink:0}
 .bdg-done{padding:3px 9px;border-radius:100px;font-size:9px;font-weight:800;background:rgba(255,255,255,.05);color:#555;flex-shrink:0}
-/* teams */
-.mc-teams{display:grid;grid-template-columns:1fr 48px 1fr;align-items:center;gap:6px;margin-bottom:12px}
+
+.mc-teams{display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;gap:6px;margin-bottom:12px}
 .mt{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
-.mt-logo{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mt-logo img{width:100%;height:100%;object-fit:contain;padding:5px}
-.mt-fb{font-family:'Bebas Neue',sans-serif;font-size:13px;color:rgba(255,255,255,.7)}
 .mt-name{font-size:10px;font-weight:700;color:rgba(255,255,255,.65);text-align:center;line-height:1.3;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mt-score{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.5px;line-height:1;text-align:center}
 .mt-ov{font-size:10px;color:rgba(255,255,255,.4);text-align:center;margin-top:2px}
 .mvs{display:flex;flex-direction:column;align-items:center;gap:5px}
 .mvs-t{font-family:'Bebas Neue',sans-serif;font-size:14px;color:rgba(255,255,255,.18)}
-/* score rows */
+
 .mc-rows{background:rgba(0,0,0,.22);border-radius:10px;margin-bottom:10px;overflow:hidden}
 .mc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 11px}
 .mc-row+.mc-row{border-top:1px solid rgba(255,255,255,.04)}
 .mc-rt{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;min-width:0}
 .mc-rt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mc-rf{width:20px;height:20px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.mc-rf img{width:100%;height:100%;object-fit:contain;padding:2px}
-.mc-rfb{font-size:8px;font-weight:800;font-family:'Bebas Neue',sans-serif}
 .mc-rs{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px}
 .mc-ro{font-size:10px;color:rgba(255,255,255,.35);margin-left:4px}
-/* status */
-.mc-st{font-size:12px;color:rgba(255,255,255,.45);line-height:1.45;padding:7px 10px;border-radius:9px;background:rgba(0,0,0,.18);margin-bottom:10px}
+
+.mc-st{font-size:12px;color:rgba(255,255,255,.5);line-height:1.45;padding:7px 10px;border-radius:9px;background:rgba(0,0,0,.18);margin-bottom:10px}
 .mc-st.win{color:var(--y);font-weight:700}
-/* countdown */
-.mc-countdown{
-  display:flex;align-items:center;gap:7px;padding:9px 11px;
-  border-radius:9px;background:rgba(212,255,0,.04);
-  border:1px solid rgba(212,255,0,.1);margin-bottom:10px;
-}
-.mc-countdown-label{font-size:10px;font-weight:800;color:#444;letter-spacing:.5px;text-transform:uppercase}
-.mc-countdown-val{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;color:var(--y);animation:countPulse 2s ease-in-out infinite}
-/* recent balls */
+.mc-st.chasing{color:#fb923c}
+
+.mc-cdown{display:flex;align-items:center;gap:7px;padding:9px 11px;border-radius:9px;background:rgba(212,255,0,.04);border:1px solid rgba(212,255,0,.1);margin-bottom:10px}
+.mc-cdown-lbl{font-size:10px;font-weight:800;color:#444;letter-spacing:.5px;text-transform:uppercase}
+.mc-cdown-val{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;color:var(--y);animation:tick 2s ease-in-out infinite}
+
 .balls{display:flex;align-items:center;gap:5px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
 .balls::-webkit-scrollbar{display:none}
 .ball-lbl{font-size:10px;font-weight:700;color:#444;white-space:nowrap;margin-right:2px;flex-shrink:0}
@@ -167,7 +168,7 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .bw{background:rgba(255,59,59,.18);color:var(--rl);border:1px solid rgba(255,59,59,.3)}
 .bd{background:rgba(255,255,255,.05);color:#555;border:1px solid rgba(255,255,255,.08)}
 .br{background:rgba(212,255,0,.08);color:var(--y);border:1px solid rgba(212,255,0,.18)}
-/* footer */
+
 .mc-foot{display:flex;align-items:center;justify-content:space-between}
 .mc-w{display:flex;align-items:center;gap:7px;font-size:11px;color:#444;font-weight:700}
 .mc-wims{display:flex}
@@ -176,7 +177,8 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .mc-wim img{width:100%;height:100%;object-fit:cover}
 .mc-det{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:800;background:rgba(212,255,0,.08);border:1px solid rgba(212,255,0,.18);color:var(--y);transition:.15s}
 .mc-det:active{background:rgba(212,255,0,.2)}
-/* ═══════════════════════ COMING SCROLL ═══════════════════════ */
+
+/* ━━━━ COMING SCROLL ━━━━ */
 .cr{display:flex;gap:10px;padding:0 14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .cr::-webkit-scrollbar{display:none}
 .cc{min-width:155px;border-radius:14px;overflow:hidden;flex-shrink:0;cursor:pointer;background:var(--card);border:1px solid var(--border);animation:fadeUp .5s ease both;transition:.18s}
@@ -188,58 +190,34 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .cc-body{padding:8px 11px}
 .cc-title{font-size:12px;font-weight:800;margin-bottom:2px}
 .cc-sub{font-size:10px;color:#555}
-/* ticket btn */
+
 .tkt{display:block;margin:18px 14px;padding:16px;border-radius:14px;background:var(--y);color:#000;font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:1px;text-align:center;transition:.15s;box-shadow:0 6px 24px rgba(212,255,0,.18);width:calc(100% - 28px)}
 .tkt:active{transform:scale(.98)}
-/* ═══════════════════════ IPL SECTION ═══════════════════════ */
-.ipl-header{
-  margin:0 14px 14px;padding:16px;border-radius:16px;
-  background:linear-gradient(135deg,rgba(212,255,0,.1) 0%,rgba(255,107,43,.08) 100%);
-  border:1px solid rgba(212,255,0,.15);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.ipl-header-left{}
-.ipl-header-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--y);margin-bottom:4px}
-.ipl-header-sub{font-size:12px;color:rgba(255,255,255,.5);font-weight:600}
-.ipl-header-badge{
-  padding:6px 12px;border-radius:100px;
-  background:rgba(255,59,59,.15);border:1px solid rgba(255,59,59,.3);
-  font-size:10px;font-weight:800;color:var(--rl);letter-spacing:1px;
-  animation:pulse .9s infinite;
-}
-.ipl-teams-grid{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:10px;
-  padding:0 14px;margin-bottom:20px;
-}
-.ipl-tcard{
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:10px 4px;border-radius:12px;
-  background:var(--card);border:1px solid var(--border);
-  cursor:pointer;transition:.18s;animation:fadeUp .5s ease both;
-}
-.ipl-tcard:active{transform:scale(.93)}
-.ipl-tcard-logo{
-  width:40px;height:40px;border-radius:50%;overflow:hidden;
-  border:1.5px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.05);
-  display:flex;align-items:center;justify-content:center;
-}
-.ipl-tcard-logo img{width:100%;height:100%;object-fit:contain;padding:4px}
-.ipl-tcard-fb{font-family:'Bebas Neue',sans-serif;font-size:10px;color:rgba(255,255,255,.6)}
-.ipl-tcard-name{font-size:9px;font-weight:800;color:#444;text-align:center;line-height:1.2}
-/* ═══════════════════════ SERIES GRID ═══════════════════════ */
+
+/* ━━━━ IPL SECTION ━━━━ */
+.ipl-banner{margin:0 14px 14px;padding:16px;border-radius:16px;background:linear-gradient(135deg,rgba(212,255,0,.1),rgba(255,107,43,.08));border:1px solid rgba(212,255,0,.15);display:flex;align-items:center;justify-content:space-between}
+.ipl-banner-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:var(--y);margin-bottom:4px}
+.ipl-banner-sub{font-size:12px;color:rgba(255,255,255,.5);font-weight:600}
+.ipl-banner-badge{padding:6px 12px;border-radius:100px;background:rgba(255,59,59,.15);border:1px solid rgba(255,59,59,.3);font-size:10px;font-weight:800;color:var(--rl);letter-spacing:1px;animation:pulse .9s infinite}
+
+.ipl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:0 14px;margin-bottom:20px}
+.ipl-tc{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;border-radius:12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:.18s;animation:fadeUp .5s ease both}
+.ipl-tc:active{transform:scale(.93)}
+.ipl-tc-name{font-size:9px;font-weight:800;color:#444;text-align:center;line-height:1.2}
+
+/* ━━━━ SERIES ━━━━ */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
-.sc{border-radius:14px;padding:14px 12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:.18s;animation:fadeUp .5s ease both;overflow:hidden;position:relative}
-.sc:active{transform:scale(.96)}
-.sc-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.1;transition:.3s}
-.sc:hover .sc-bg{opacity:.18}
+.sc-card{border-radius:14px;padding:14px 12px;background:var(--card);border:1px solid var(--border);cursor:pointer;transition:.18s;animation:fadeUp .5s ease both;overflow:hidden;position:relative}
+.sc-card:active{transform:scale(.96)}
+.sc-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.1}
 .si{font-size:24px;margin-bottom:8px;position:relative;z-index:1}
 .sn{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.5px;margin-bottom:3px;position:relative;z-index:1;line-height:1.2}
 .ss{font-size:10px;color:#555;margin-bottom:8px;position:relative;z-index:1}
 .sb{display:inline-block;padding:2px 9px;border-radius:100px;font-size:8px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;position:relative;z-index:1}
 .sb.live{background:rgba(255,59,59,.14);color:var(--rl)}
 .sb.soon{background:rgba(212,255,0,.08);color:var(--y)}
-/* ═══════════════════════ BOTTOM NAV ═══════════════════════ */
+
+/* ━━━━ BOTTOM NAV ━━━━ */
 .botnav{position:fixed;bottom:0;left:0;right:0;z-index:150;height:calc(var(--bot) + var(--safe));display:flex;align-items:center;justify-content:space-around;padding:0 4px;padding-bottom:var(--safe);background:rgba(17,17,17,.95);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-top:1px solid var(--border)}
 .bn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 12px;border-radius:12px;cursor:pointer;transition:.18s;flex:1}
 .bn:active{opacity:.6;transform:scale(.92)}
@@ -247,62 +225,63 @@ button{font-family:'Nunito',sans-serif;cursor:pointer;border:none;background:non
 .bn-ico{font-size:19px;filter:grayscale(1) opacity(.45)}
 .bn.on .bn-ico{filter:none}
 .bn-lbl{font-size:9px;font-weight:800;color:#444;letter-spacing:.3px}
-/* ═══════════════════════ OVERLAY ═══════════════════════ */
+
+/* ━━━━ OVERLAY ━━━━ */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none}
 .overlay.on{display:block;animation:fadeIn .3s ease}
-/* ═══════════════════════ SHEET ═══════════════════════ */
+
+/* ━━━━ SHEET ━━━━ */
 .sheet{position:fixed;bottom:0;left:0;right:0;z-index:201;max-height:94dvh;min-height:55dvh;background:var(--bg2);border-radius:22px 22px 0 0;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .42s cubic-bezier(.22,.68,0,1.2)}
 .sheet.on{transform:translateY(0)}
 .sh-grip{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,.14);margin:11px auto 0;flex-shrink:0}
-/* hero */
+
 .sh-hero{flex-shrink:0;height:185px;position:relative;overflow:hidden}
 .sh-hero img{width:100%;height:100%;object-fit:cover;object-position:center}
 .sh-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.05),var(--bg2))}
-.sh-watch{position:absolute;bottom:14px;right:14px;z-index:2;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(200,10,10,.88);backdrop-filter:blur(12px);font-size:13px;font-weight:800;color:#fff;box-shadow:0 4px 18px rgba(200,0,0,.4);border:none;cursor:pointer;transition:.15s}
+.sh-watch{position:absolute;bottom:14px;right:14px;z-index:2;display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:100px;background:rgba(200,10,10,.9);backdrop-filter:blur(12px);font-size:13px;font-weight:800;color:#fff;box-shadow:0 4px 18px rgba(200,0,0,.4);border:none;cursor:pointer}
 .sh-watch:active{transform:scale(.95)}
 .sw-dot{width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse .9s infinite}
-/* score header */
+
 .sh-sc{flex-shrink:0;padding:16px 14px 12px;border-bottom:1px solid var(--border)}
-.sh-lbl{font-size:11px;color:#444;margin-bottom:10px;letter-spacing:.3px;font-weight:600}
+.sh-lbl{font-size:11px;color:#444;margin-bottom:10px;font-weight:600}
 .sh-row{display:flex;align-items:center;gap:10px}
 .sh-t{flex:1;display:flex;flex-direction:column;gap:5px}
 .sh-t.r{align-items:flex-end;text-align:right}
-.sh-tlogo{width:40px;height:40px;border-radius:50%;overflow:hidden;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sh-tlogo img{width:100%;height:100%;object-fit:contain;padding:4px}
-.sh-tfb{font-family:'Bebas Neue',sans-serif;font-size:11px;color:rgba(255,255,255,.6)}
 .sh-tn{font-size:12px;font-weight:700;color:rgba(255,255,255,.65)}
 .sh-ts{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px;line-height:1}
 .sh-to{font-size:10px;color:#444}
 .sh-vs{font-family:'Bebas Neue',sans-serif;font-size:14px;color:rgba(255,255,255,.12)}
 .sh-status{margin-top:10px;padding:9px 12px;border-radius:9px;background:rgba(212,255,0,.05);border:1px solid rgba(212,255,0,.1);font-size:12px;color:var(--y);font-weight:600;line-height:1.5}
-/* recent balls in sheet */
+
 .sh-balls{flex-shrink:0;padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none}
 .sh-balls::-webkit-scrollbar{display:none}
 .sh-bl{font-size:9px;font-weight:800;color:#444;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-right:4px}
-/* tabs */
-.sh-tabs{flex-shrink:0;display:flex;border-bottom:1px solid var(--border)}
-.st{flex:1;padding:11px 4px;font-size:11px;font-weight:800;color:#444;border-bottom:2px solid transparent;transition:.2s;letter-spacing:.2px}
+
+.sh-tabs{flex-shrink:0;display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.sh-tabs::-webkit-scrollbar{display:none}
+.st{flex-shrink:0;padding:11px 14px;font-size:11px;font-weight:800;color:#444;border-bottom:2px solid transparent;transition:.2s;white-space:nowrap}
 .st.on{color:var(--y);border-bottom-color:var(--y)}
-/* body */
+
 .sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sh-body::-webkit-scrollbar{display:none}
 .sh-sec{display:none;padding:14px}
 .sh-sec.on{display:block}
-/* ═══════════════════════ SCORECARD ═══════════════════════ */
+
+/* ━━━━ SCORECARD ━━━━ */
 .sc-inn{margin-bottom:20px}
 .sc-head{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--y);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(212,255,0,.12)}
 table.sct{width:100%;border-collapse:collapse;font-size:11px}
 .sct th{color:#444;font-weight:800;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:5px 4px;text-align:right;border-bottom:1px solid var(--border)}
 .sct th:first-child{text-align:left}
-.sct td{padding:8px 4px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);color:rgba(255,255,255,.65)}
+.sct td{padding:8px 4px;text-align:right;border-bottom:1px solid rgba(255,255,255,.03);color:rgba(255,255,255,.7)}
 .sct td:first-child{text-align:left}
 .sct tr:hover td{background:rgba(255,255,255,.02)}
-.pn{color:#fff;font-weight:700;font-size:12px}
-.dm{color:#444;font-size:9px;margin-top:2px;display:block;font-weight:600;line-height:1.3}
-.bld{font-weight:800;color:#fff;font-size:12px}
+.sct .pn{color:#fff;font-weight:700;font-size:12px}
+.sct .dm{color:#444;font-size:9px;margin-top:2px;display:block;font-weight:600;line-height:1.3}
+.sct .bld{font-weight:800;color:#fff;font-size:12px}
 .sc-total{display:flex;justify-content:space-between;padding:8px 4px;border-top:1px solid rgba(255,255,255,.1);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.5px;margin-top:4px}
 .sc-ext{display:flex;justify-content:space-between;padding:6px 4px;font-size:11px;border-top:1px solid rgba(255,255,255,.04);color:#444}
-/* crease card */
+
 .crease{background:rgba(212,255,0,.04);border:1px solid rgba(212,255,0,.1);border-radius:10px;padding:10px 12px;margin-bottom:12px}
 .crease-h{font-size:9px;color:var(--y);font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
 .crease-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
@@ -312,52 +291,68 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
 .cstat{display:flex;flex-direction:column;align-items:center;gap:1px}
 .cstat-v{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.3px}
 .cstat-l{font-size:8px;color:#444;font-weight:700;letter-spacing:.5px}
-/* ═══════════════════════ BALL BY BALL ═══════════════════════ */
+
+/* ━━━━ COMMENTARY / BBB ━━━━ */
 .bbb{display:flex;flex-direction:column;gap:8px}
 .ov-group{background:rgba(255,255,255,.03);border-radius:12px;border:1px solid var(--border);overflow:hidden}
 .ov-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
 .ov-no{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--y);letter-spacing:.5px}
 .ov-runs{font-size:11px;font-weight:800;color:rgba(255,255,255,.5)}
-.ov-balls{display:flex;gap:6px;padding:10px 12px;flex-wrap:wrap;align-items:flex-start}
-.bi{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:54px}
-.bi-chip{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
-.bi-comm{font-size:9px;color:#444;font-weight:600;text-align:center;line-height:1.2;word-break:break-word}
-.bbb-empty{text-align:center;padding:30px 16px;color:#444;font-size:13px;font-weight:600;line-height:1.6}
-/* ═══════════════════════ ANALYSIS ═══════════════════════ */
-.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+/* Ball items */
+.ov-balls{display:flex;flex-direction:column;gap:0}
+.ball-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04)}
+.ball-row:last-child{border-bottom:none}
+.ball-chip-lg{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.ball-over-lbl{font-size:10px;color:#444;font-weight:700;width:32px;flex-shrink:0;padding-top:7px}
+.ball-comm{flex:1}
+.ball-comm-main{font-size:13px;color:rgba(255,255,255,.8);line-height:1.45;margin-bottom:3px}
+.ball-comm-sub{font-size:11px;color:#444;font-weight:600}
+.ball-comm-sub span{margin-right:8px}
+/* Wicket highlight */
+.ball-row.is-wicket{background:rgba(255,59,59,.05)}
+.ball-row.is-four{background:rgba(0,230,118,.03)}
+.ball-row.is-six{background:rgba(74,144,255,.04)}
+
+.bbb-empty{text-align:center;padding:30px 16px;color:#444;font-size:13px;font-weight:600;line-height:1.7}
+
+/* ━━━━ ANALYSIS ━━━━ */
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 .an-stat{background:var(--bg3);border-radius:12px;padding:14px;border:1px solid var(--border);text-align:center}
 .an-stat-val{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.5px;color:var(--y);line-height:1;margin-bottom:4px}
 .an-stat-lbl{font-size:10px;font-weight:800;color:#444;letter-spacing:1px;text-transform:uppercase}
-.an-section{margin-bottom:16px}
-.an-section-head{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--y);letter-spacing:.5px;margin-bottom:10px}
-.an-player-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.an-player-row:last-child{border-bottom:none}
-.an-player-name{font-size:13px;font-weight:700}
-.an-player-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--y);letter-spacing:.3px}
-.an-player-sub{font-size:10px;color:#444;font-weight:600}
-/* run rate bar */
+.an-sec{margin-bottom:16px}
+.an-sec-head{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--y);letter-spacing:.5px;margin-bottom:10px}
+.an-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.an-row:last-child{border-bottom:none}
+.an-name{font-size:13px;font-weight:700}
+.an-val{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--y);letter-spacing:.3px}
+.an-sub{font-size:10px;color:#444;font-weight:600}
 .rrbar{margin-bottom:16px}
 .rrbar-head{font-size:10px;font-weight:800;color:#444;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
-.rrbar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.rrbar-lbl{font-size:11px;font-weight:700;color:rgba(255,255,255,.6);width:32px;text-align:right;flex-shrink:0}
-.rrbar-track{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
+.rrbar-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.rrbar-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);width:28px;text-align:right;flex-shrink:0}
+.rrbar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden}
 .rrbar-fill{height:100%;border-radius:3px;background:var(--y);transition:width .5s ease}
-.rrbar-val{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--y);width:32px;flex-shrink:0}
-/* ═══════════════════════ PLAYING XI ═══════════════════════ */
+.rrbar-val{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--y);width:24px;flex-shrink:0}
+
+/* ━━━━ PLAYING XI ━━━━ */
 .xi-team{margin-bottom:16px}
-.xi-team-head{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--y);letter-spacing:.5px;margin-bottom:10px}
+.xi-head{font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--y);letter-spacing:.5px;margin-bottom:10px}
 .xi-player{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .xi-player:last-child{border-bottom:none}
 .xi-num{width:22px;height:22px;border-radius:50%;background:rgba(212,255,0,.08);border:1px solid rgba(212,255,0,.12);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:11px;color:var(--y);flex-shrink:0}
 .xi-name{font-size:13px;font-weight:700}
-/* ═══════════════════════ INFO ═══════════════════════ */
+
+/* ━━━━ INFO ━━━━ */
 .ib{background:var(--bg3);border-radius:12px;padding:13px;border:1px solid var(--border);margin-bottom:10px}
 .ib-head{font-size:9px;color:#444;text-transform:uppercase;letter-spacing:1.5px;font-weight:800;margin-bottom:10px}
 .ir{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px}
 .ir:last-child{border-bottom:none;padding-bottom:0}
 .ik{color:#444;font-weight:600;flex-shrink:0}
 .iv{font-weight:700;text-align:right;max-width:200px;line-height:1.4}
-/* ═══════════════════════ LOADING / ERROR ═══════════════════════ */
+.iv a{color:var(--y)}
+
+/* ━━━━ LOADING / ERROR ━━━━ */
 .spw{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 16px;gap:12px}
 .spin{width:32px;height:32px;border-radius:50%;border:3px solid rgba(212,255,0,.1);border-top-color:var(--y);animation:spin .7s linear infinite}
 .spn-t{font-size:11px;color:#444;letter-spacing:1px;font-weight:800;text-transform:uppercase}
@@ -365,7 +360,8 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
 .err-h{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--rl);margin-bottom:5px}
 .err-b{font-size:12px;color:#555;line-height:1.5;margin-bottom:12px}
 .err-r{padding:9px 22px;border-radius:100px;font-size:12px;font-weight:800;background:rgba(212,255,0,.1);border:1px solid rgba(212,255,0,.18);color:var(--y)}
-/* ═══════════════════════ RESPONSIVE ═══════════════════════ */
+
+/* ━━━━ RESPONSIVE ━━━━ */
 @media(min-width:480px){
   #splash,#app{max-width:420px;margin:0 auto}
   .botnav,.topbar,.sheet{max-width:420px;left:50%;transform:translateX(-50%)}
@@ -379,7 +375,7 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
 <!-- SPLASH -->
 <div id="splash">
   <div class="sp-img">
-    <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&q=80&auto=format" alt="IPL Cricket Stadium" loading="eager" onerror="this.src='https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80'"/>
+    <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=800&q=80&auto=format" alt="IPL 2026 Cricket Stadium" loading="eager" onerror="this.src='https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80'"/>
     <div class="sp-over">
       <div class="sp-chip"><span class="sp-dot"></span>IPL 2026 · Season Live</div>
       <h1 class="sp-h1">Daily<br>Cricket<br><em>Thrills.</em></h1>
@@ -409,14 +405,14 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
     </div>
   </div>
   <div class="tabs" id="mainTabs">
-    <button class="tab on" onclick="switchTab('live',this)">🔴 Live Action</button>
+    <button class="tab on" onclick="switchTab('live',this)">🔴 Live</button>
     <button class="tab" onclick="switchTab('upcoming',this)">🗓 Upcoming</button>
     <button class="tab" onclick="switchTab('ipl',this)">🏏 IPL 2026</button>
     <button class="tab" onclick="switchTab('series',this)">🏆 Series</button>
   </div>
   <div class="page">
 
-    <!-- LIVE -->
+    <!-- LIVE TAB -->
     <div class="tp on" id="tp-live">
       <div class="sec">
         <div class="sec-head">
@@ -435,7 +431,7 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
       <button class="tkt" onclick="alert('Ticket booking coming soon! 🏟️')">GET TICKET</button>
     </div>
 
-    <!-- UPCOMING -->
+    <!-- UPCOMING TAB -->
     <div class="tp" id="tp-upcoming">
       <div class="sec">
         <div class="sec-head" style="margin-top:2px"><div class="sec-title">Upcoming Matches</div></div>
@@ -443,45 +439,37 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
       </div>
     </div>
 
-    <!-- IPL 2026 -->
+    <!-- IPL TAB -->
     <div class="tp" id="tp-ipl">
       <div style="height:14px"></div>
-      <div class="ipl-header">
-        <div class="ipl-header-left">
-          <div class="ipl-header-title">🏏 IPL 2026</div>
-          <div class="ipl-header-sub">Indian Premier League · T20 · 10 Teams</div>
-        </div>
-        <div class="ipl-header-badge">● SEASON LIVE</div>
+      <div class="ipl-banner">
+        <div><div class="ipl-banner-title">🏏 IPL 2026</div><div class="ipl-banner-sub">Indian Premier League · T20 · 10 Teams</div></div>
+        <div class="ipl-banner-badge">● SEASON LIVE</div>
       </div>
-      <!-- Team logos grid -->
-      <div class="sec">
-        <div class="sec-head"><div class="sec-title">Teams</div></div>
-      </div>
-      <div class="ipl-teams-grid" id="iplTeamsGrid"></div>
-      <!-- IPL matches -->
-      <div class="sec">
-        <div class="sec-head"><div class="sec-title">IPL Matches</div></div>
+      <div class="sec"><div class="sec-head"><div class="sec-title">Teams</div></div></div>
+      <div class="ipl-grid" id="iplTeamsGrid"></div>
+      <div class="sec"><div class="sec-head"><div class="sec-title">IPL Matches</div></div>
         <div class="ml" id="iplMatchList"><div class="spw"><div class="spin"></div><div class="spn-t">Loading IPL matches…</div></div></div>
       </div>
       <div style="height:14px"></div>
     </div>
 
-    <!-- SERIES -->
+    <!-- SERIES TAB -->
     <div class="tp" id="tp-series">
       <div class="sec" style="padding-bottom:14px"><div class="sec-head" style="margin-top:2px"><div class="sec-title">Tournaments & Series</div></div></div>
       <div class="sg">
-        <div class="sc"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=300&q=50')"></div><div class="si">🏏</div><div class="sn">IPL 2026</div><div class="ss">Indian Premier League · T20</div><div class="sb live">● Live Now</div></div>
-        <div class="sc" style="animation-delay:.06s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=300&q=50')"></div><div class="si">🌍</div><div class="sn">ICC World Cup</div><div class="ss">International · ODI</div><div class="sb soon">Upcoming</div></div>
-        <div class="sc" style="animation-delay:.12s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1589801258579-18e091f4ca26?w=300&q=50')"></div><div class="si">⭐</div><div class="sn">Asia Cup</div><div class="ss">Asia · T20I</div><div class="sb soon">Upcoming</div></div>
-        <div class="sc" style="animation-delay:.18s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=300&q=50')"></div><div class="si">🌙</div><div class="sn">PSL 2026</div><div class="ss">Pakistan Super League</div><div class="sb live">● Live Now</div></div>
-        <div class="sc" style="animation-delay:.24s"><div class="si">🦁</div><div class="sn">The Ashes</div><div class="ss">England vs Australia</div><div class="sb soon">Upcoming</div></div>
-        <div class="sc" style="animation-delay:.3s"><div class="si">🦘</div><div class="sn">BBL 2026</div><div class="ss">Big Bash League · T20</div><div class="sb soon">Upcoming</div></div>
+        <div class="sc-card"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=300&q=50')"></div><div class="si">🏏</div><div class="sn">IPL 2026</div><div class="ss">Indian Premier League · T20</div><div class="sb live">● Live Now</div></div>
+        <div class="sc-card" style="animation-delay:.06s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=300&q=50')"></div><div class="si">🌍</div><div class="sn">ICC World Cup</div><div class="ss">International · ODI</div><div class="sb soon">Upcoming</div></div>
+        <div class="sc-card" style="animation-delay:.12s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1589801258579-18e091f4ca26?w=300&q=50')"></div><div class="si">⭐</div><div class="sn">Asia Cup</div><div class="ss">Asia · T20I</div><div class="sb soon">Upcoming</div></div>
+        <div class="sc-card" style="animation-delay:.18s"><div class="sc-bg" style="background-image:url('https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=300&q=50')"></div><div class="si">🌙</div><div class="sn">PSL 2026</div><div class="ss">Pakistan Super League</div><div class="sb live">● Live Now</div></div>
+        <div class="sc-card" style="animation-delay:.24s"><div class="si">🦁</div><div class="sn">The Ashes</div><div class="ss">England vs Australia</div><div class="sb soon">Upcoming</div></div>
+        <div class="sc-card" style="animation-delay:.3s"><div class="si">🦘</div><div class="sn">BBL 2026</div><div class="ss">Big Bash League · T20</div><div class="sb soon">Upcoming</div></div>
       </div>
       <div style="height:14px"></div>
     </div>
 
-  </div><!-- .page -->
-</div><!-- #app -->
+  </div>
+</div>
 
 <!-- BOTTOM NAV -->
 <div class="botnav" id="botnav" style="display:none">
@@ -504,14 +492,14 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
     <div class="sh-lbl" id="shLbl"></div>
     <div class="sh-row">
       <div class="sh-t">
-        <div class="sh-tlogo" id="shL1"></div>
+        <div id="shL1" style="margin-bottom:5px"></div>
         <div class="sh-tn" id="shN1"></div>
         <div class="sh-ts" id="shS1"></div>
         <div class="sh-to" id="shO1"></div>
       </div>
       <div class="sh-vs">VS</div>
       <div class="sh-t r">
-        <div class="sh-tlogo" id="shL2" style="margin-left:auto"></div>
+        <div id="shL2" style="margin-bottom:5px;margin-left:auto"></div>
         <div class="sh-tn" id="shN2"></div>
         <div class="sh-ts" id="shS2"></div>
         <div class="sh-to" id="shO2"></div>
@@ -522,7 +510,7 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
   <div class="sh-balls" id="shBalls"><span class="sh-bl">RECENT:</span></div>
   <div class="sh-tabs">
     <button class="st on" onclick="shTab('sc',this)">Scorecard</button>
-    <button class="st" onclick="shTab('bbb',this)">Ball by Ball</button>
+    <button class="st" onclick="shTab('bbb',this)">Commentary</button>
     <button class="st" onclick="shTab('analysis',this)">Analysis</button>
     <button class="st" onclick="shTab('xi',this)">Playing XI</button>
     <button class="st" onclick="shTab('info',this)">Info</button>
@@ -537,299 +525,345 @@ table.sct{width:100%;border-collapse:collapse;font-size:11px}
 </div>
 
 <script>
-/* ═══════════════════════════════════════════
-   CONFIG
-═══════════════════════════════════════════ */
-// Change to your Vercel URL when deploying, e.g. 'https://circazo.vercel.app'
-// Leave empty to use same origin (correct when hosting on Vercel)
-const API_BASE  = '';
-const CRIC_KEY  = '0aaa3768-a8c4-4a0a-b869-6bbab7afca30';
+/* ═══════════════════════════════════════
+   CONFIG — set API_BASE to your Vercel URL
+   e.g.  const API_BASE = 'https://circazo.vercel.app'
+   Leave empty ('') when hosting HTML on same Vercel app
+═══════════════════════════════════════ */
+const API_BASE = '';
 
-/* ═══════════════════════════════════════════
-   IPL TEAM DATA  (all 10 teams)
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   IPL TEAM DATA — all 10 teams
+═══════════════════════════════════════ */
 const IPL = {
-  'Chennai Super Kings':         {s:'CSK', color:'#f5c842', logo:'https://upload.wikimedia.org/wikipedia/en/2/2b/Chennai_Super_Kings_Logo.svg'},
-  'Mumbai Indians':              {s:'MI',  color:'#005da0', logo:'https://upload.wikimedia.org/wikipedia/en/c/cd/Mumbai_Indians_Logo.svg'},
-  'Royal Challengers Bengaluru': {s:'RCB', color:'#cc0000', logo:'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bangalore_2020.svg'},
-  'Royal Challengers Bangalore': {s:'RCB', color:'#cc0000', logo:'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bangalore_2020.svg'},
-  'Kolkata Knight Riders':       {s:'KKR', color:'#3a0a6e', logo:'https://upload.wikimedia.org/wikipedia/en/4/4c/Kolkata_Knight_Riders_Logo.svg'},
-  'Sunrisers Hyderabad':         {s:'SRH', color:'#f26522', logo:'https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Sunrisers_Hyderabad.png/200px-Sunrisers_Hyderabad.png'},
-  'Delhi Capitals':              {s:'DC',  color:'#004c93', logo:'https://upload.wikimedia.org/wikipedia/en/2/2d/Delhi_Capitals.svg'},
-  'Rajasthan Royals':            {s:'RR',  color:'#ea1a8e', logo:'https://upload.wikimedia.org/wikipedia/en/6/60/Rajasthan_Royals_Logo.svg'},
-  'Punjab Kings':                {s:'PBKS',color:'#d71920', logo:'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg'},
-  'Kings XI Punjab':             {s:'PBKS',color:'#d71920', logo:'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg'},
-  'Lucknow Super Giants':        {s:'LSG', color:'#00b4d8', logo:'https://upload.wikimedia.org/wikipedia/en/6/6a/Lucknow_Super_Giants.svg'},
-  'Gujarat Titans':              {s:'GT',  color:'#1c4f9c', logo:'https://upload.wikimedia.org/wikipedia/en/0/09/Gujarat_Titans_Logo.svg'},
+  'Chennai Super Kings':         {s:'CSK', color:'#FFCC00', logo:'https://upload.wikimedia.org/wikipedia/en/2/2b/Chennai_Super_Kings_Logo.svg'},
+  'Mumbai Indians':              {s:'MI',  color:'#005DA0', logo:'https://upload.wikimedia.org/wikipedia/en/c/cd/Mumbai_Indians_Logo.svg'},
+  'Royal Challengers Bengaluru': {s:'RCB', color:'#EC1C24', logo:'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bangalore_2020.svg'},
+  'Royal Challengers Bangalore': {s:'RCB', color:'#EC1C24', logo:'https://upload.wikimedia.org/wikipedia/en/2/2a/Royal_Challengers_Bangalore_2020.svg'},
+  'Kolkata Knight Riders':       {s:'KKR', color:'#3A225D', logo:'https://upload.wikimedia.org/wikipedia/en/4/4c/Kolkata_Knight_Riders_Logo.svg'},
+  'Sunrisers Hyderabad':         {s:'SRH', color:'#F7A721', logo:'https://upload.wikimedia.org/wikipedia/en/thumb/4/43/Sunrisers_Hyderabad.png/200px-Sunrisers_Hyderabad.png'},
+  'Delhi Capitals':              {s:'DC',  color:'#0078BC', logo:'https://upload.wikimedia.org/wikipedia/en/2/2d/Delhi_Capitals.svg'},
+  'Rajasthan Royals':            {s:'RR',  color:'#EA1A8E', logo:'https://upload.wikimedia.org/wikipedia/en/6/60/Rajasthan_Royals_Logo.svg'},
+  'Punjab Kings':                {s:'PBKS',color:'#D71920', logo:'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg'},
+  'Kings XI Punjab':             {s:'PBKS',color:'#D71920', logo:'https://upload.wikimedia.org/wikipedia/en/d/d4/Punjab_Kings_Logo.svg'},
+  'Lucknow Super Giants':        {s:'LSG', color:'#00BFFF', logo:'https://upload.wikimedia.org/wikipedia/en/6/6a/Lucknow_Super_Giants.svg'},
+  'Gujarat Titans':              {s:'GT',  color:'#1C4F9C', logo:'https://upload.wikimedia.org/wikipedia/en/0/09/Gujarat_Titans_Logo.svg'},
 };
 const IPL_ALL = ['Chennai Super Kings','Mumbai Indians','Royal Challengers Bengaluru',
   'Kolkata Knight Riders','Sunrisers Hyderabad','Delhi Capitals','Rajasthan Royals',
   'Punjab Kings','Lucknow Super Giants','Gujarat Titans'];
+const IPL_SET = new Set([...IPL_ALL, 'Royal Challengers Bangalore','Kings XI Punjab']);
 
-function ti(n){
-  const d=IPL[n];
-  if(d)return d;
-  return{s:(typeof n==='string'?n:'?').split(' ').map(w=>w[0]).join('').slice(0,4).toUpperCase(),color:'#4A90FF',logo:''};
-}
-function safeStr(v){
-  if(typeof v==='string')return v;
-  if(v&&typeof v==='object')return v.name||JSON.stringify(v);
-  return v!=null?String(v):'';
-}
-function logoEl(n,sz=50){
-  const t=ti(n),fb=`<span class="mt-fb">${t.s}</span>`;
-  if(!t.logo)return fb;
-  const pad=Math.round(sz*.09)+'px';
-  return`<img src="${t.logo}" style="width:100%;height:100%;object-fit:contain;padding:${pad}" loading="lazy" alt="${t.s}" onerror="this.outerHTML='${fb.replace(/'/g,"&#39;")}'" />`;
+function ti(n) {
+  if (IPL[n]) return IPL[n];
+  const abbr = (typeof n === 'string' ? n : '?')
+    .split(' ').map(w => w[0] || '').join('').slice(0, 4).toUpperCase() || '?';
+  return { s: abbr, color: '#4A90FF', logo: '' };
 }
 
-const IMGS=[
+/* ═══════════════════════════════════════
+   LOGO RENDERER — FIXED
+   Uses stacked approach:
+   1. Colored circle (always visible)
+   2. Abbr text centered (z-index 1)
+   3. Img absolutely positioned on top (z-index 2, dark bg covers abbr through transparent PNG areas)
+   onerror → simply hides img, abbr text shows
+   NO outerHTML manipulation
+═══════════════════════════════════════ */
+function makeLogo(name, size = 50) {
+  const t     = ti(name);
+  const col   = t.color;
+  const abbr  = t.s;
+  const fsize = Math.round(size * 0.28);
+  const pad   = Math.round(size * 0.1);
+  // bg color: team color at 20% opacity
+  const bg    = col + '33';
+  // img background: dark so transparent PNG areas don't show abbr text behind
+  const imgBg = '#1D1D1D';
+
+  const el = document.createElement('div');
+  el.className = 'tlogo';
+  el.style.cssText = `width:${size}px;height:${size}px;background:${bg}`;
+
+  // Abbr text (behind)
+  const abbEl = document.createElement('span');
+  abbEl.className = 'tlogo-abbr';
+  abbEl.textContent = abbr;
+  abbEl.style.cssText = `font-size:${fsize}px;color:${col}`;
+  el.appendChild(abbEl);
+
+  // Logo img (on top, hides abbr)
+  if (t.logo) {
+    const img = document.createElement('img');
+    img.src = t.logo;
+    img.alt = '';  // empty alt — prevents alt text showing
+    img.loading = 'lazy';
+    img.style.cssText = `padding:${pad}px;background:${imgBg}`;
+    img.onerror = function() { this.style.display = 'none'; }; // hide img, abbr shows
+    el.appendChild(img);
+  }
+
+  return el.outerHTML;
+}
+
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const IMGS = [
   'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=700&q=70',
   'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=700&q=70',
   'https://images.unsplash.com/photo-1589801258579-18e091f4ca26?w=700&q=70',
   'https://images.unsplash.com/photo-1624526267942-ab0ff8a3e972?w=700&q=70',
 ];
 
-/* ═══════════════════════════════════════════
-   DATE HELPERS — safe, never "Invalid Date"
-═══════════════════════════════════════════ */
-function safeDate(d){
-  if(!d||d==='undefined'||d==='null')return null;
-  const dt=new Date(d);
-  return isNaN(dt.getTime())?null:dt;
-}
-function fmtDT(d){
-  const dt=safeDate(d);
-  if(!dt)return'TBD';
-  return dt.toLocaleString('en-IN',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:true});
-}
-function fmtTime(d){
-  const dt=safeDate(d);
-  if(!dt)return'';
-  return dt.toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
-}
-function countdownStr(d){
-  const dt=safeDate(d);
-  if(!dt)return'';
-  const diff=dt-Date.now();
-  if(diff<=0)return'Starting soon';
-  const days=Math.floor(diff/86400000);
-  const hrs=Math.floor((diff%86400000)/3600000);
-  const min=Math.floor((diff%3600000)/60000);
-  if(days>0)return`${days}d ${hrs}h`;
-  if(hrs>0)return`${hrs}h ${min}m`;
-  return`${min}m`;
+function safeStr(v) {
+  if (typeof v === 'string') return v;
+  if (v && typeof v === 'object') return v.name || '';
+  return v != null ? String(v) : '';
 }
 
-/* ═══════════════════════════════════════════
-   BALL CHIP
-═══════════════════════════════════════════ */
-function bchip(v,cls='bchip'){
-  const r=String(v||'·').trim().toUpperCase();
-  const c=r==='W'?'bw':r==='6'?'b6':r==='4'?'b4':(r==='0'||r==='.'||r==='·')?'bd':/^\d+$/.test(r)?'br':'bd';
-  const show=r==='0'?'·':r.length>2?r.slice(0,2):r;
-  return`<div class="${cls} ${c}">${show}</div>`;
+function safeDate(d) {
+  if (!d || d === 'undefined' || d === 'null') return null;
+  const dt = new Date(d);
+  return isNaN(dt.getTime()) ? null : dt;
 }
-function recentBalls(m){
-  const balls=[];
-  (m.score||[]).forEach(s=>{if(s.balls&&Array.isArray(s.balls))balls.push(...s.balls)});
-  if(!balls.length&&m.status){
-    const mt=m.status.match(/[0-9W·.]+(?:\s*[,·]\s*[0-9W·.]+){2,}/);
-    if(mt)mt[0].split(/\s*[,·]\s*/).forEach(v=>v.trim()&&balls.push(v.trim()));
-  }
+
+function fmtDT(d) {
+  const dt = safeDate(d);
+  if (!dt) return 'TBD';
+  return dt.toLocaleString('en-IN', { weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+}
+
+function fmtTime(d) {
+  const dt = safeDate(d);
+  if (!dt) return '';
+  return dt.toLocaleString('en-IN', { hour:'2-digit', minute:'2-digit', hour12:true });
+}
+
+function countdown(d) {
+  const dt = safeDate(d);
+  if (!dt) return '';
+  const diff = dt - Date.now();
+  if (diff <= 0) return 'Starting soon';
+  const days = Math.floor(diff / 86400000);
+  const hrs  = Math.floor((diff % 86400000) / 3600000);
+  const min  = Math.floor((diff % 3600000)  / 60000);
+  if (days > 0) return `${days}d ${hrs}h`;
+  if (hrs  > 0) return `${hrs}h ${min}m`;
+  return `${min}m ${Math.floor((diff%60000)/1000)}s`;
+}
+
+function bchip(v, cls='bchip') {
+  const r = String(v || '·').trim().toUpperCase();
+  let c   = 'bd';
+  if (r === 'W' || r.startsWith('W')) c = 'bw';
+  else if (r === '6') c = 'b6';
+  else if (r === '4') c = 'b4';
+  else if (/^\d+$/.test(r) && parseInt(r) > 0) c = 'br';
+  const show = (r === '0' || r === '·' || r === '') ? '·' : (r.length > 2 ? r.slice(0, 2) : r);
+  return `<div class="${cls} ${c}">${show}</div>`;
+}
+
+function recentBalls(m) {
+  const balls = [];
+  (m.score || []).forEach(s => {
+    if (s.balls && Array.isArray(s.balls)) balls.push(...s.balls);
+  });
   return balls.slice(-12);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    STATE
-═══════════════════════════════════════════ */
-let ALL=[],LIVE=[],UPCOMING=[],ENDED=[];
-let cd=30,cdT;
-const countdownTimers={};
+═══════════════════════════════════════ */
+let ALL = [], LIVE = [], UPCOMING = [], ENDED = [];
+let cd = 30, cdT;
+const cdTimers = {};
 
-/* ═══════════════════════════════════════════
-   LOAD DATA
-═══════════════════════════════════════════ */
-async function loadAll(){
-  setLoading('liveList');
-  try{
-    // Primary: Vercel scraper API
-    const r=await fetch(`${API_BASE}/api/scores`,{headers:{Accept:'application/json'}});
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const j=await r.json();
-    ALL=normalizeMatches(j.matches||[]);
-  }catch(e1){
-    // Fallback: CricketData API (direct from browser)
-    try{
-      const[r1,r2]=await Promise.all([
-        fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${CRIC_KEY}&offset=0`).then(r=>r.json()).catch(()=>null),
-        fetch(`https://api.cricapi.com/v1/matches?apikey=${CRIC_KEY}&offset=0`).then(r=>r.json()).catch(()=>null)
-      ]);
-      const seen=new Set(),raw=[];
-      for(const m of[...(r1?.data||[]),...(r2?.data||[])]){
-        if(m.id&&!seen.has(m.id)){seen.add(m.id);raw.push(m);}
-      }
-      if(!raw.length)throw new Error(r1?.reason||'No data');
-      ALL=normalizeMatches(raw);
-    }catch(e2){
-      showErr('liveList',e2.message);
-      document.getElementById('upList').innerHTML='';
-      document.getElementById('iplMatchList').innerHTML='<div class="bbb-empty">No data available</div>';
-      return;
-    }
-  }
-  LIVE=ALL.filter(m=>m.isLive);
-  UPCOMING=ALL.filter(m=>!m.matchStarted&&!m.isLive);
-  ENDED=ALL.filter(m=>m.matchEnded);
-  renderAll();
-}
+/* ═══════════════════════════════════════
+   NORMALIZE matches from API
+═══════════════════════════════════════ */
+function normalize(raw) {
+  return (raw || []).map(m => {
+    // Safe team name extraction
+    let t1 = '', t2 = '';
+    if (typeof m.t1 === 'string' && m.t1) t1 = m.t1;
+    else if (m.teamInfo?.[0]?.name) t1 = m.teamInfo[0].name;
+    else if (typeof m.teams?.[0] === 'string') t1 = m.teams[0];
+    else if (m.teams?.[0]?.name) t1 = m.teams[0].name;
 
-/* Normalise team names from both data sources */
-function normalizeMatches(raw){
-  return raw.map(m=>{
-    // Extract team names safely
-    let t1='',t2='';
-    if(typeof m.t1==='string'&&m.t1) t1=m.t1;
-    else if(m.teamInfo?.[0]?.name) t1=m.teamInfo[0].name;
-    else if(typeof m.teams?.[0]==='string') t1=m.teams[0];
-    else if(m.teams?.[0]?.name) t1=m.teams[0].name;
+    if (typeof m.t2 === 'string' && m.t2) t2 = m.t2;
+    else if (m.teamInfo?.[1]?.name) t2 = m.teamInfo[1].name;
+    else if (typeof m.teams?.[1] === 'string') t2 = m.teams[1];
+    else if (m.teams?.[1]?.name) t2 = m.teams[1].name;
 
-    if(typeof m.t2==='string'&&m.t2) t2=m.t2;
-    else if(m.teamInfo?.[1]?.name) t2=m.teamInfo[1].name;
-    else if(typeof m.teams?.[1]==='string') t2=m.teams[1];
-    else if(m.teams?.[1]?.name) t2=m.teams[1].name;
+    // Safe score array
+    const score = (m.score || []).filter(s =>
+      s && typeof s === 'object' && ('r' in s || 'runs' in s)
+    ).map(s => ({
+      inning: s.inning || '',
+      r: s.r ?? s.runs ?? null,
+      w: s.w ?? s.wickets ?? null,
+      o: s.o ?? s.overs ?? null,
+    }));
 
-    // Resolve known abbreviations
-    const RESOLVE={'Csk':'Chennai Super Kings','Mi':'Mumbai Indians','Rcb':'Royal Challengers Bengaluru',
-      'Kkr':'Kolkata Knight Riders','Srh':'Sunrisers Hyderabad','Dc':'Delhi Capitals',
-      'Rr':'Rajasthan Royals','Pbks':'Punjab Kings','Lsg':'Lucknow Super Giants','Gt':'Gujarat Titans'};
-    t1=RESOLVE[t1]||t1;
-    t2=RESOLVE[t2]||t2;
+    // If has score data, it's started
+    const hasScore = score.some(s => s.r != null && s.r > 0);
+    const isLive   = !!(m.isLive || (hasScore && !m.matchEnded));
+    const isEnded  = !!(m.matchEnded);
+    const isUpcoming = !isLive && !isEnded;
 
-    // Safely extract scores
-    const score=(m.score||[]).map(s=>{
-      if(typeof s==='object'&&s!==null&&('r' in s||'runs' in s)){
-        return{inning:s.inning||'',r:s.r??s.runs??null,w:s.w??s.wickets??null,o:s.o??s.overs??null};
-      }
-      return null;
-    }).filter(Boolean);
+    const isIPL = m.is_ipl || IPL_SET.has(t1) || IPL_SET.has(t2) ||
+      (m.series || m.name || '').toLowerCase().includes('ipl') ||
+      (m.series || m.name || '').toLowerCase().includes('indian premier league');
 
-    // is_ipl check
-    const IPL_TEAMS_SET=new Set(IPL_ALL.concat(['Royal Challengers Bangalore']));
-    const isIpl=m.is_ipl||IPL_TEAMS_SET.has(t1)||IPL_TEAMS_SET.has(t2)||
-      (m.series||m.name||'').toLowerCase().includes('ipl')||
-      (m.series||m.name||'').toLowerCase().includes('indian premier league');
-
-    return{
-      ...m,
-      t1,t2,score,is_ipl:isIpl,
-      isLive:m.isLive||(!!(m.matchStarted&&!m.matchEnded)),
-      matchStarted:!!(m.matchStarted),
-      matchEnded:!!(m.matchEnded),
+    return {
+      ...m, t1, t2, score, is_ipl: isIPL,
+      isLive, matchStarted: isLive || isEnded, matchEnded: isEnded,
     };
   });
 }
 
-function setLoading(id){
-  document.getElementById(id).innerHTML='<div class="spw"><div class="spin"></div><div class="spn-t">Fetching live scores…</div></div>';
-}
-function showErr(id,msg){
-  document.getElementById(id).innerHTML=`<div class="err"><div class="err-h">Could not load</div><div class="err-b">${msg}</div><button class="err-r" onclick="loadAll()">Try Again</button></div>`;
-}
+/* ═══════════════════════════════════════
+   LOAD DATA — only Vercel API
+═══════════════════════════════════════ */
+async function loadAll() {
+  setLoad('liveList');
+  try {
+    const r = await fetch(`${API_BASE}/api/scores`, { headers: { Accept: 'application/json' } });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    ALL = normalize(j.matches || []);
+  } catch (e) {
+    showErr('liveList', `Could not reach /api/scores<br><small>${e.message}</small>`);
+    document.getElementById('upList').innerHTML = '';
+    document.getElementById('iplMatchList').innerHTML = '<div class="bbb-empty">No data</div>';
+    return;
+  }
 
-/* ═══════════════════════════════════════════
-   RENDER ALL
-═══════════════════════════════════════════ */
-function renderAll(){
-  renderList('liveList', LIVE, 'No live matches right now 🏏');
-  renderList('upList', UPCOMING, 'No upcoming matches');
-  const ipl=ALL.filter(m=>m.is_ipl);
-  renderList('iplMatchList', ipl, 'No IPL matches found');
+  LIVE     = ALL.filter(m =>  m.isLive);
+  UPCOMING = ALL.filter(m => !m.matchStarted && !m.isLive);
+  ENDED    = ALL.filter(m =>  m.matchEnded);
+
+  renderList('liveList',     LIVE,     'No live matches right now 🏏');
+  renderList('upList',       UPCOMING, 'No upcoming matches');
+  renderList('iplMatchList', ALL.filter(m => m.is_ipl), 'No IPL matches found');
   renderComing();
   renderIPLTeams();
 }
 
-function renderList(id,list,emptyMsg){
-  const el=document.getElementById(id);
-  if(!list.length){el.innerHTML=`<div class="spw"><span style="font-size:38px">🏏</span><div class="spn-t" style="margin-top:8px">${emptyMsg}</div></div>`;return;}
-  el.innerHTML=list.map((m,i)=>mcHTML(m,i)).join('');
-  // start live countdowns
-  list.filter(m=>!m.matchStarted&&m.dateTimeGMT).forEach(m=>startLiveCountdown(m));
+function setLoad(id) {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = '<div class="spw"><div class="spin"></div><div class="spn-t">Fetching…</div></div>';
 }
 
-function renderComing(){
-  const el=document.getElementById('comingRow');
-  const list=(UPCOMING.length?UPCOMING:LIVE).slice(0,6);
-  if(!list.length){el.innerHTML='';return;}
-  el.innerHTML=list.map((m,i)=>{
-    const info=ti(m.t1),info2=ti(m.t2),img=IMGS[i%IMGS.length];
-    const mj=encodeURIComponent(JSON.stringify(m));
-    const timeStr=m.dateTimeGMT?fmtTime(m.dateTimeGMT):'TBD';
-    return`<div class="cc" style="animation-delay:${i*.07}s" onclick="openSheet(decodeURIComponent('${mj}'))">
-      <div class="cc-img"><img src="${img}" loading="lazy" alt="${info.s} vs ${info2.s}"/><div class="cc-grad"></div><div class="cc-arr">↗</div></div>
-      <div class="cc-body"><div class="cc-title">${info.s} vs ${info2.s}</div><div class="cc-sub">${timeStr}</div></div>
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="err"><div class="err-h">Could Not Load</div><div class="err-b">${msg}</div><button class="err-r" onclick="loadAll()">Try Again</button></div>`;
+}
+
+/* ═══════════════════════════════════════
+   RENDER LISTS
+═══════════════════════════════════════ */
+function renderList(id, list, emptyMsg) {
+  const el = document.getElementById(id);
+  if (!list.length) {
+    el.innerHTML = `<div class="spw"><span style="font-size:38px">🏏</span><div class="spn-t" style="margin-top:8px">${emptyMsg}</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map((m, i) => cardHTML(m, i)).join('');
+  list.filter(m => !m.matchStarted && m.dateTimeGMT).forEach(m => startCdTimer(m));
+}
+
+function renderComing() {
+  const el   = document.getElementById('comingRow');
+  const list = (UPCOMING.length ? UPCOMING : LIVE).slice(0, 6);
+  if (!list.length) { el.innerHTML = ''; return; }
+  el.innerHTML = list.map((m, i) => {
+    const t1i = ti(m.t1), t2i = ti(m.t2);
+    const img = IMGS[i % IMGS.length];
+    const mj  = encodeURIComponent(JSON.stringify(m));
+    return `<div class="cc" style="animation-delay:${i*.07}s" onclick="openSheet(decodeURIComponent('${mj}'))">
+      <div class="cc-img"><img src="${img}" loading="lazy" alt=""/><div class="cc-grad"></div><div class="cc-arr">↗</div></div>
+      <div class="cc-body"><div class="cc-title">${t1i.s} vs ${t2i.s}</div><div class="cc-sub">${m.series || 'IPL 2026'}</div></div>
     </div>`;
   }).join('');
 }
 
-function renderIPLTeams(){
-  const el=document.getElementById('iplTeamsGrid');
-  el.innerHTML=IPL_ALL.map((name,i)=>{
-    const t=IPL[name];
-    return`<div class="ipl-tcard" style="animation-delay:${i*.04}s">
-      <div class="ipl-tcard-logo">
-        <img src="${t.logo}" loading="lazy" alt="${t.s}" onerror="this.outerHTML='<span class=ipl-tcard-fb>${t.s}</span>'"/>
-      </div>
-      <div class="ipl-tcard-name">${t.s}</div>
+function renderIPLTeams() {
+  document.getElementById('iplTeamsGrid').innerHTML = IPL_ALL.map((name, i) => {
+    const t = IPL[name];
+    return `<div class="ipl-tc" style="animation-delay:${i*.04}s">
+      ${makeLogo(name, 40)}
+      <div class="ipl-tc-name">${t.s}</div>
     </div>`;
   }).join('');
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    MATCH CARD HTML
-═══════════════════════════════════════════ */
-function mcHTML(m,idx){
-  const isL=m.isLive,isUp=!m.matchStarted&&!m.isLive;
-  const t1=safeStr(m.t1)||'TBA',t2=safeStr(m.t2)||'TBA';
-  const sc=m.score||[];
-  const sc1=sc.find(s=>s.inning&&s.inning.toLowerCase().includes(ti(t1).s.toLowerCase()))||sc[0];
-  const sc2=sc.find(s=>s.inning&&s.inning.toLowerCase().includes(ti(t2).s.toLowerCase()))||sc[1];
-  const badge=isL?`<span class="bdg-live">● LIVE</span>`:m.matchEnded?`<span class="bdg-done">Finished</span>`:`<span class="bdg-up">Upcoming</span>`;
-  const balls=recentBalls(m);
-  const stCls=(m.status||'').toLowerCase().includes('won')?'win':'';
-  const mj=encodeURIComponent(JSON.stringify(m));
-  const seriesName=safeStr(m.series||m.name||'IPL 2026').split(',').slice(-1)[0].trim();
-  const fmt=safeStr(m.matchType||'T20').toUpperCase();
-  const cdStr=isUp&&m.dateTimeGMT?countdownStr(m.dateTimeGMT):'';
-  const cdId=`cd-${m.id}`;
+═══════════════════════════════════════ */
+function cardHTML(m, idx) {
+  const isL  = m.isLive;
+  const t1   = safeStr(m.t1) || 'TBA';
+  const t2   = safeStr(m.t2) || 'TBA';
+  const t1i  = ti(t1), t2i = ti(t2);
+  const sc   = m.score || [];
+  const sc1  = sc.find(s => s.inning && s.inning.toLowerCase().includes(t1i.s.toLowerCase())) || sc[0];
+  const sc2  = sc.find(s => s.inning && s.inning.toLowerCase().includes(t2i.s.toLowerCase())) || sc[1];
+  const isUp = !m.matchStarted;
+  const badge = isL ? `<span class="bdg-live">● LIVE</span>` : m.matchEnded ? `<span class="bdg-done">Finished</span>` : `<span class="bdg-up">Upcoming</span>`;
+  const balls = recentBalls(m);
+  const st    = safeStr(m.status || '');
+  const stCls = st.toLowerCase().includes('won') ? 'win' : (st.toLowerCase().includes('need') || st.toLowerCase().includes('require')) ? 'chasing' : '';
+  const seriesName = safeStr(m.series || m.name || 'IPL 2026').split(',').slice(-1)[0].trim();
+  const cdId  = `cd-${m.id}`;
+  const cdStr = isUp && m.dateTimeGMT ? countdown(m.dateTimeGMT) : '';
+  const mj    = encodeURIComponent(JSON.stringify(m));
 
-  return`<div class="mc${isL?' live':''}" style="animation-delay:${idx*.07}s" onclick="openSheet(decodeURIComponent('${mj}'))">
+  return `<div class="mc${isL ? ' live' : ''}" style="animation-delay:${idx*.07}s" onclick="openSheet(decodeURIComponent('${mj}'))">
     <div class="mc-in">
       <div class="mc-top">
-        <div class="mc-ser"><span class="mc-ser-txt">${seriesName}</span><span class="mc-fmt">${fmt}</span></div>
+        <div class="mc-ser"><span class="mc-ser-txt">${seriesName}</span><span class="mc-fmt">${safeStr(m.matchType || 'T20').toUpperCase()}</span></div>
         ${badge}
       </div>
       <div class="mc-teams">
         <div class="mt">
-          <div class="mt-logo">${logoEl(t1,52)}</div>
+          ${makeLogo(t1, 52)}
           <div class="mt-name">${t1}</div>
-          ${sc1?`<div class="mt-score">${sc1.r??'—'}${sc1.w!=null?'/'+sc1.w:''}</div><div class="mt-ov">${sc1.o?`(${sc1.o}ov)`:''}</div>`:''}
+          ${sc1 ? `<div class="mt-score">${sc1.r ?? '—'}${sc1.w != null ? '/' + sc1.w : ''}</div><div class="mt-ov">${sc1.o ? '(' + sc1.o + 'ov)' : ''}</div>` : ''}
         </div>
-        <div class="mvs"><div class="mvs-t">VS</div>${isL?`<img src="${IMGS[idx%IMGS.length]}" style="width:38px;height:38px;border-radius:50%;object-fit:cover;opacity:.35;border:1.5px solid rgba(255,255,255,.1)" loading="lazy" alt=""/>`:``}</div>
+        <div class="mvs">
+          <div class="mvs-t">VS</div>
+          ${isL ? `<img src="${IMGS[idx % IMGS.length]}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;opacity:.3;border:1.5px solid rgba(255,255,255,.1)" loading="lazy" alt=""/>` : ''}
+        </div>
         <div class="mt">
-          <div class="mt-logo">${logoEl(t2,52)}</div>
+          ${makeLogo(t2, 52)}
           <div class="mt-name">${t2}</div>
-          ${sc2?`<div class="mt-score">${sc2.r??'—'}${sc2.w!=null?'/'+sc2.w:''}</div><div class="mt-ov">${sc2.o?`(${sc2.o}ov)`:''}</div>`:''}
+          ${sc2 ? `<div class="mt-score">${sc2.r ?? '—'}${sc2.w != null ? '/' + sc2.w : ''}</div><div class="mt-ov">${sc2.o ? '(' + sc2.o + 'ov)' : ''}</div>` : ''}
         </div>
       </div>
-      ${sc.length?`<div class="mc-rows">${sc.map((s,i)=>{const tn=i===0?t1:t2;const info=ti(tn);const l=info.logo;return`<div class="mc-row"><div class="mc-rt"><div class="mc-rf">${l?`<img src="${l}" style="width:100%;height:100%;object-fit:contain;padding:2px" loading="lazy" alt=""/>`:`<span class="mc-rfb">${info.s}</span>`}</div><span class="mc-rt-name">${tn}</span></div><div><span class="mc-rs">${s.r??'—'}${s.w!=null?'/'+s.w:''}</span>${s.o?`<span class="mc-ro">(${s.o}ov)</span>`:''}</div></div>`;}).join('')}</div>`:''}
-      ${m.status?`<div class="mc-st ${stCls}">${safeStr(m.status)}</div>`:''}
-      ${isUp&&cdStr?`<div class="mc-countdown"><span class="mc-countdown-label">⏱ Starts in</span><span class="mc-countdown-val" id="${cdId}">${cdStr}</span></div>`:''}
-      ${balls.length?`<div class="balls"><span class="ball-lbl">Recent:</span>${balls.map((b,i)=>`<div style="animation-delay:${i*.04}s">${bchip(b)}</div>`).join('')}</div>`:''}
+      ${sc.length ? `<div class="mc-rows">${sc.map((s, i) => {
+        const tn  = i === 0 ? t1 : t2;
+        const tni = ti(tn);
+        return `<div class="mc-row">
+          <div class="mc-rt">
+            ${makeLogo(tn, 20)}
+            <span class="mc-rt-name">${tn}</span>
+          </div>
+          <div>
+            <span class="mc-rs">${s.r ?? '—'}${s.w != null ? '/' + s.w : ''}</span>
+            ${s.o ? `<span class="mc-ro">(${s.o}ov)</span>` : ''}
+          </div>
+        </div>`;
+      }).join('')}</div>` : ''}
+      ${st ? `<div class="mc-st ${stCls}">${st}</div>` : ''}
+      ${isUp && cdStr ? `<div class="mc-cdown"><span class="mc-cdown-lbl">⏱ Starts in</span><span class="mc-cdown-val" id="${cdId}">${cdStr}</span></div>` : ''}
+      ${balls.length ? `<div class="balls"><span class="ball-lbl">Recent:</span>${balls.map((b, i) => `<div style="animation-delay:${i*.04}s">${bchip(b)}</div>`).join('')}</div>` : ''}
       <div class="mc-foot">
         <div class="mc-w">
-          <div class="mc-wims">${[0,1,2].map(i=>`<div class="mc-wim"><img src="https://i.pravatar.cc/40?img=${idx*3+i+2}" loading="lazy" alt=""/></div>`).join('')}</div>
-          ${isL?`+${(Math.random()*5+.5).toFixed(1)}M Watching`:'Tap for details'}
+          <div class="mc-wims">${[0,1,2].map(i => `<div class="mc-wim"><img src="https://i.pravatar.cc/40?img=${idx*3+i+2}" loading="lazy" alt=""/></div>`).join('')}</div>
+          ${isL ? `+${(Math.random() * 5 + .5).toFixed(1)}M Watching` : 'Tap for details'}
         </div>
         <button class="mc-det">Details →</button>
       </div>
@@ -837,413 +871,406 @@ function mcHTML(m,idx){
   </div>`;
 }
 
-/* Live countdown updater */
-function startLiveCountdown(m){
-  const id=`cd-${m.id}`;
-  if(countdownTimers[id])clearInterval(countdownTimers[id]);
-  countdownTimers[id]=setInterval(()=>{
-    const el=document.getElementById(id);
-    if(!el){clearInterval(countdownTimers[id]);return;}
-    const s=countdownStr(m.dateTimeGMT);
-    el.textContent=s||'Starting soon';
-    if(!s)clearInterval(countdownTimers[id]);
-  },30000);
+/* Live countdown ticker */
+function startCdTimer(m) {
+  const id = `cd-${m.id}`;
+  if (cdTimers[id]) clearInterval(cdTimers[id]);
+  cdTimers[id] = setInterval(() => {
+    const el = document.getElementById(id);
+    if (!el) { clearInterval(cdTimers[id]); return; }
+    el.textContent = countdown(m.dateTimeGMT) || 'Starting soon';
+  }, 1000);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    OPEN SHEET
-═══════════════════════════════════════════ */
-async function openSheet(raw){
-  let m;try{m=JSON.parse(raw)}catch{return;}
-  const t1=safeStr(m.t1)||'Team A',t2=safeStr(m.t2)||'Team B';
-  const sc=m.score||[];
-  const sc1=sc.find(s=>s.inning&&s.inning.toLowerCase().includes(ti(t1).s.toLowerCase()))||sc[0];
-  const sc2=sc.find(s=>s.inning&&s.inning.toLowerCase().includes(ti(t2).s.toLowerCase()))||sc[1];
+═══════════════════════════════════════ */
+async function openSheet(raw) {
+  let m; try { m = JSON.parse(raw); } catch { return; }
+  const t1 = safeStr(m.t1) || 'Team A';
+  const t2 = safeStr(m.t2) || 'Team B';
+  const sc = m.score || [];
+  const sc1 = sc.find(s => s.inning?.toLowerCase().includes(ti(t1).s.toLowerCase())) || sc[0];
+  const sc2 = sc.find(s => s.inning?.toLowerCase().includes(ti(t2).s.toLowerCase())) || sc[1];
 
-  document.getElementById('shHeroImg').src=IMGS[Math.abs((m.id||'').charCodeAt?.(0)||0)%IMGS.length];
-  document.getElementById('shLbl').textContent=safeStr(m.name||m.series||'IPL 2026');
-  document.getElementById('shL1').innerHTML=logoEl(t1,40);
-  document.getElementById('shL2').innerHTML=logoEl(t2,40);
-  document.getElementById('shN1').textContent=t1;
-  document.getElementById('shN2').textContent=t2;
-  document.getElementById('shS1').textContent=sc1?`${sc1.r??'—'}${sc1.w!=null?'/'+sc1.w:''}`:'—';
-  document.getElementById('shS2').textContent=sc2?`${sc2.r??'—'}${sc2.w!=null?'/'+sc2.w:''}`:'—';
-  document.getElementById('shO1').textContent=sc1?.o?sc1.o+' ov':'';
-  document.getElementById('shO2').textContent=sc2?.o?sc2.o+' ov':'';
+  // Hero
+  document.getElementById('shHeroImg').src = IMGS[Math.abs((m.id || '').charCodeAt?.(0) || 0) % IMGS.length];
+  document.getElementById('shLbl').textContent = safeStr(m.series || m.name || 'IPL 2026');
 
-  // Status — never show "Invalid Date"
-  let statusTxt=safeStr(m.status||'');
-  if(!statusTxt&&m.dateTimeGMT){
-    const dt=safeDate(m.dateTimeGMT);
-    statusTxt=dt?`Match: ${fmtDT(m.dateTimeGMT)}`:'Match details';
-  }
-  document.getElementById('shSt').textContent=statusTxt||'Match details';
+  // Set logos in sheet header using makeLogo
+  document.getElementById('shL1').innerHTML = makeLogo(t1, 40);
+  document.getElementById('shL2').innerHTML = makeLogo(t2, 40);
+  document.getElementById('shN1').textContent = t1;
+  document.getElementById('shN2').textContent = t2;
+  document.getElementById('shS1').textContent = sc1 ? `${sc1.r ?? '—'}${sc1.w != null ? '/' + sc1.w : ''}` : '—';
+  document.getElementById('shS2').textContent = sc2 ? `${sc2.r ?? '—'}${sc2.w != null ? '/' + sc2.w : ''}` : '—';
+  document.getElementById('shO1').textContent = sc1?.o ? sc1.o + ' ov' : '';
+  document.getElementById('shO2').textContent = sc2?.o ? sc2.o + ' ov' : '';
+
+  // Status — safe, never "Invalid Date"
+  let statusTxt = safeStr(m.status || '');
+  if (!statusTxt && m.dateTimeGMT) statusTxt = fmtDT(m.dateTimeGMT);
+  document.getElementById('shSt').textContent = statusTxt || 'Match details';
 
   // Recent balls
-  const balls=recentBalls(m);
-  const bEl=document.getElementById('shBalls');
-  bEl.innerHTML=`<span class="sh-bl">RECENT:</span>${balls.length?balls.map((b,i)=>`<div style="animation-delay:${i*.04}s">${bchip(b)}</div>`).join(''):'<span style="font-size:11px;color:#333;font-weight:600">No ball data yet</span>'}`;
+  const balls = recentBalls(m);
+  const bEl = document.getElementById('shBalls');
+  bEl.innerHTML = `<span class="sh-bl">RECENT:</span>${balls.length ? balls.map((b, i) => `<div style="animation-delay:${i*.04}s">${bchip(b)}</div>`).join('') : '<span style="font-size:11px;color:#333;font-weight:600">No ball data yet</span>'}`;
 
-  shTab('sc',document.querySelector('.st'));
+  shTab('sc', document.querySelector('.st'));
   buildInfo(m);
   document.getElementById('overlay').classList.add('on');
   document.getElementById('sheet').classList.add('on');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 
-  // Load full data async
-  ['ss-sc','ss-bbb','ss-analysis','ss-xi'].forEach(id=>{
-    document.getElementById(id).innerHTML='<div class="spw"><div class="spin"></div><div class="spn-t">Loading…</div></div>';
+  // Load full data
+  ['ss-sc', 'ss-bbb', 'ss-analysis', 'ss-xi'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="spw"><div class="spin"></div><div class="spn-t">Loading…</div></div>';
   });
 
-  try{
-    const r=await fetch(`${API_BASE}/api/scorecard?id=${m.id}`);
-    if(!r.ok)throw new Error(`HTTP ${r.status}`);
-    const d=await r.json();
-    buildScorecard(d,m);
-    buildBBB(d.bbb||[],m);
-    buildAnalysis(d,m);
-    buildXI(d.playing_xi||{});
-  }catch(e){
-    // Fallback: CricketData scorecard API
-    try{
-      const r2=await fetch(`https://api.cricapi.com/v1/match_scorecard?apikey=${CRIC_KEY}&offset=0&id=${m.id}`);
-      const d2=await r2.json();
-      if(d2.status==='success'&&d2.data){
-        buildScorecardCricData(d2.data,m);
-        buildBBBEmpty(m);
-        buildAnalysisFromScore(m);
-        document.getElementById('ss-xi').innerHTML='<div class="bbb-empty">Playing XI not yet available.</div>';
-      }else throw new Error('no data');
-    }catch{
-      buildScorecardFallback(m);
-      buildBBBEmpty(m);
-      buildAnalysisFromScore(m);
-      document.getElementById('ss-xi').innerHTML='<div class="bbb-empty">Playing XI not yet available.</div>';
-    }
+  try {
+    const r = await fetch(`${API_BASE}/api/scorecard?id=${m.id}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    buildScorecard(d, m);
+    buildCommentary(d.bbb || [], m);
+    buildAnalysis(d, m);
+    buildXI(d.playing_xi || {});
+  } catch (e) {
+    buildScorecardFallback(m);
+    buildCommentaryFallback(m);
+    buildAnalysisFallback(m);
+    document.getElementById('ss-xi').innerHTML = '<div class="bbb-empty">Playing XI not yet available.</div>';
   }
 }
 
-function closeSheet(){
+function closeSheet() {
   document.getElementById('sheet').classList.remove('on');
   document.getElementById('overlay').classList.remove('on');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-/* ═══════════════════════════════════════════
-   SCORECARD BUILDERS
-═══════════════════════════════════════════ */
-function buildScorecard(d,m){
-  const el=document.getElementById('ss-sc');
-  const bat=d.batting||[],bowl=d.bowling||[],ext=d.extras||[],tot=d.totals||[];
-  if(!bat.length&&!bowl.length){buildScorecardFallback(m);return;}
+/* ═══════════════════════════════════════
+   SCORECARD
+═══════════════════════════════════════ */
+function buildScorecard(d, m) {
+  const el  = document.getElementById('ss-sc');
+  const bat = d.batting || [], bowl = d.bowling || [], ext = d.extras || [], tot = d.totals || [];
+  if (!bat.length && !bowl.length) { buildScorecardFallback(m); return; }
 
-  const notOut=bat.filter(b=>b.not_out);
-  let html='';
-  if(notOut.length&&m.isLive){
-    html+=`<div class="crease"><div class="crease-h">At the Crease</div>`;
-    notOut.slice(0,2).forEach(b=>{
-      html+=`<div class="crease-row"><div class="crease-name">${b.name}</div>
+  const notOut = bat.filter(b => b.not_out);
+  let html = '';
+
+  if (notOut.length && m.isLive) {
+    html += `<div class="crease"><div class="crease-h">At the Crease</div>`;
+    notOut.slice(0, 2).forEach(b => {
+      html += `<div class="crease-row"><div class="crease-name">${b.name}</div>
       <div class="cstats">
-        <div class="cstat"><div class="cstat-v">${b.runs??'—'}</div><div class="cstat-l">R</div></div>
-        <div class="cstat"><div class="cstat-v">${b.balls??'—'}</div><div class="cstat-l">B</div></div>
-        <div class="cstat"><div class="cstat-v">${b.fours??0}</div><div class="cstat-l">4s</div></div>
-        <div class="cstat"><div class="cstat-v">${b.sixes??0}</div><div class="cstat-l">6s</div></div>
-        <div class="cstat"><div class="cstat-v">${b.sr??'—'}</div><div class="cstat-l">SR</div></div>
+        <div class="cstat"><div class="cstat-v">${b.runs ?? '—'}</div><div class="cstat-l">R</div></div>
+        <div class="cstat"><div class="cstat-v">${b.balls ?? '—'}</div><div class="cstat-l">B</div></div>
+        <div class="cstat"><div class="cstat-v">${b.fours ?? 0}</div><div class="cstat-l">4s</div></div>
+        <div class="cstat"><div class="cstat-v">${b.sixes ?? 0}</div><div class="cstat-l">6s</div></div>
+        <div class="cstat"><div class="cstat-v">${b.sr ?? '—'}</div><div class="cstat-l">SR</div></div>
       </div></div>`;
     });
-    html+=`</div>`;
+    html += `</div>`;
   }
-  html+=`<div class="sc-inn"><div class="sc-head">Batting</div>
+
+  html += `<div class="sc-inn"><div class="sc-head">Batting</div>
     <table class="sct"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>
-    ${bat.map(b=>`<tr>
-      <td><span class="pn">${b.name}</span><span class="dm">${b.dismissal||''}</span></td>
-      <td class="bld">${b.runs??'—'}</td><td>${b.balls??'—'}</td>
-      <td>${b.fours??0}</td><td>${b.sixes??0}</td><td>${b.sr??'—'}</td>
+    ${bat.map(b => `<tr>
+      <td><span class="pn">${b.name}</span><span class="dm">${b.dismissal || (b.not_out ? 'not out' : '')}</span></td>
+      <td class="bld">${b.runs ?? '—'}</td><td>${b.balls ?? '—'}</td>
+      <td>${b.fours ?? 0}</td><td>${b.sixes ?? 0}</td><td>${b.sr ?? '—'}</td>
     </tr>`).join('')}
     </tbody></table>
-    ${ext[0]?`<div class="sc-ext"><span class="ik">Extras</span><span>${ext[0].total||0} (b ${ext[0].byes||0}, lb ${ext[0].legByes||0}, w ${ext[0].wides||0}, nb ${ext[0].noBalls||0})</span></div>`:''}
-    ${tot[0]?`<div class="sc-total"><span>Total</span><span>${tot[0].runs}/${tot[0].wickets} (${tot[0].overs} Ov)</span></div>`:''}
+    ${ext[0] ? `<div class="sc-ext"><span class="ik">Extras</span><span>${ext[0].total || 0} (b ${ext[0].byes || 0}, lb ${ext[0].legByes || 0}, w ${ext[0].wides || 0}, nb ${ext[0].noBalls || 0})</span></div>` : ''}
+    ${tot[0] ? `<div class="sc-total"><span>Total</span><span>${tot[0].runs}/${tot[0].wickets} (${tot[0].overs} Ov)</span></div>` : ''}
   </div>`;
-  if(bowl.length){
-    html+=`<div class="sc-inn"><div class="sc-head">Bowling</div>
+
+  if (bowl.length) {
+    html += `<div class="sc-inn"><div class="sc-head">Bowling</div>
     <table class="sct"><thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead><tbody>
-    ${bowl.map(b=>`<tr>
-      <td class="pn">${b.name}</td><td>${b.overs??'—'}</td><td>${b.maidens??0}</td>
-      <td>${b.runs??'—'}</td><td class="bld">${b.wickets??0}</td><td>${b.eco??'—'}</td>
+    ${bowl.map(b => `<tr>
+      <td class="pn">${b.name}</td><td>${b.overs ?? '—'}</td><td>${b.maidens ?? 0}</td>
+      <td>${b.runs ?? '—'}</td><td class="bld">${b.wickets ?? 0}</td><td>${b.eco ?? '—'}</td>
     </tr>`).join('')}
     </tbody></table></div>`;
   }
-  el.innerHTML=html;
+  el.innerHTML = html;
 }
 
-function buildScorecardCricData(d,m){
-  const el=document.getElementById('ss-sc');
-  const inns=d.scorecard||[];
-  if(!inns.length){buildScorecardFallback(m);return;}
-  let html='';
-  inns.forEach(inn=>{
-    const bat=inn.batting||[],bowl=inn.bowling||[],ex=inn.extras||{},tot=inn.total||{};
-    html+=`<div class="sc-inn"><div class="sc-head">${inn.title||inn.inning||'Innings'}</div>
-    <table class="sct"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>
-    ${bat.map(b=>{const sr=b.b?((b.r/b.b)*100).toFixed(1):'—';return`<tr>
-      <td><span class="pn">${b.batsman||b.name||'—'}</span><span class="dm">${b.dismissal||''}</span></td>
-      <td class="bld">${b.r??'—'}</td><td>${b.b??'—'}</td>
-      <td>${b['4s']??b.fours??0}</td><td>${b['6s']??b.sixes??0}</td><td>${sr}</td>
-    </tr>`}).join('')}
-    </tbody></table>
-    ${ex.total!=null?`<div class="sc-ext"><span class="ik">Extras</span><span>${ex.total||0}</span></div>`:''}
-    ${tot.r!=null?`<div class="sc-total"><span>${inn.title||'Total'}</span><span>${tot.r}/${tot.w||0} (${tot.o||0} Ov)</span></div>`:''}
-    </div>`;
-    if(bowl.length){
-      html+=`<div class="sc-inn"><div class="sc-head">Bowling</div>
-      <table class="sct"><thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Eco</th></tr></thead><tbody>
-      ${bowl.map(b=>{const eco=b.o?(b.r/parseFloat(b.o)).toFixed(2):'—';return`<tr>
-        <td class="pn">${b.bowler||b.name||'—'}</td><td>${b.o??'—'}</td><td>${b.m??0}</td>
-        <td>${b.r??'—'}</td><td class="bld">${b.w??0}</td><td>${b.eco??eco}</td>
-      </tr>`}).join('')}
-      </tbody></table></div>`;
-    }
-  });
-  el.innerHTML=html;
-}
-
-function buildScorecardFallback(m){
-  const el=document.getElementById('ss-sc');
-  const sc=m.score||[];
-  if(!sc.length){el.innerHTML='<div class="bbb-empty">📋 Scorecard not available yet</div>';return;}
-  el.innerHTML=sc.map(s=>`<div class="sc-inn"><div class="sc-head">${s.inning||'Innings'}</div>
+function buildScorecardFallback(m) {
+  const el = document.getElementById('ss-sc');
+  const sc = m.score || [];
+  if (!sc.length) { el.innerHTML = '<div class="bbb-empty">📋 Scorecard not available yet</div>'; return; }
+  el.innerHTML = sc.map(s => `<div class="sc-inn"><div class="sc-head">${s.inning || 'Innings'}</div>
     <table class="sct"><thead><tr><th>Innings</th><th>R</th><th>W</th><th>Overs</th></tr></thead>
-    <tbody><tr><td class="pn">${s.inning||'—'}</td><td class="bld">${s.r??'—'}</td><td>${s.w??'—'}</td><td>${s.o??'—'}</td></tr></tbody></table>
-    <div class="sc-total"><span></span><span>${s.r??''}${s.w!=null?'/'+s.w:''} ${s.o?'('+s.o+' Ov)':''}</span></div>
+    <tbody><tr><td class="pn">${s.inning || '—'}</td><td class="bld">${s.r ?? '—'}</td><td>${s.w ?? '—'}</td><td>${s.o ?? '—'}</td></tr></tbody></table>
+    <div class="sc-total"><span></span><span>${s.r ?? ''}${s.w != null ? '/' + s.w : ''} ${s.o ? '(' + s.o + ' Ov)' : ''}</span></div>
   </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════
-   BALL BY BALL
-═══════════════════════════════════════════ */
-function buildBBB(balls,m){
-  const el=document.getElementById('ss-bbb');
-  if(!balls||!balls.length){buildBBBEmpty(m);return;}
-  const overs={};
-  balls.forEach(b=>{const ov=b.over??0;if(!overs[ov])overs[ov]=[];overs[ov].push(b);});
-  let html='<div class="bbb">';
-  Object.keys(overs).map(Number).sort((a,b)=>b-a).forEach(ov=>{
-    const grp=overs[ov];
-    const total=grp.reduce((s,b)=>s+(b.runs||0)+(b.extras||0),0);
-    html+=`<div class="ov-group"><div class="ov-head"><div class="ov-no">OVER ${ov+1}</div><div class="ov-runs">${total} runs</div></div><div class="ov-balls">`;
-    grp.forEach(b=>{
-      const chip=bchip(b.type||b.runs||'·','bi-chip');
-      const comm=(b.comment||'').slice(0,60);
-      html+=`<div class="bi">${chip}${comm?`<div class="bi-comm">${comm}</div>`:''}</div>`;
-    });
-    html+=`</div></div>`;
+/* ═══════════════════════════════════════
+   COMMENTARY (Ball by Ball)
+═══════════════════════════════════════ */
+function buildCommentary(bbb, m) {
+  const el = document.getElementById('ss-bbb');
+  if (!bbb || !bbb.length) { buildCommentaryFallback(m); return; }
+
+  // Group by over
+  const overs = {};
+  bbb.forEach(b => {
+    const ov = b.over ?? 0;
+    if (!overs[ov]) overs[ov] = [];
+    overs[ov].push(b);
   });
-  el.innerHTML=html+'</div>';
+
+  let html = '<div class="bbb">';
+  Object.keys(overs).map(Number).sort((a, b) => b - a).forEach(ov => {
+    const grp   = overs[ov];
+    const total = grp.reduce((s, b) => s + (b.runs || 0) + (b.extras || 0), 0);
+
+    html += `<div class="ov-group">
+      <div class="ov-head"><div class="ov-no">OVER ${ov + 1}</div><div class="ov-runs">${total} runs</div></div>
+      <div class="ov-balls">`;
+
+    [...grp].reverse().forEach(b => {
+      const btype  = String(b.type || b.runs || '·').toUpperCase();
+      const isW    = b.wicket || btype === 'W';
+      const is4    = b.four   || btype === '4';
+      const is6    = b.six    || btype === '6';
+      const chipCl = isW ? 'bw' : is6 ? 'b6' : is4 ? 'b4' : (btype === '0' || btype === '·' ? 'bd' : 'br');
+      const chipTx = isW ? 'W' : is6 ? '6' : is4 ? '4' : (btype === '0' ? '·' : btype.slice(0, 2));
+      const rowCl  = isW ? 'is-wicket' : is4 ? 'is-four' : is6 ? 'is-six' : '';
+      const comm   = b.comment || '';
+      const sub    = [b.batter && `🏏 ${b.batter}`, b.bowler && `🎳 ${b.bowler}`].filter(Boolean).join('  ');
+
+      html += `<div class="ball-row ${rowCl}">
+        <div class="ball-over-lbl">${b.label || `${ov}.${b.ball}`}</div>
+        <div class="ball-chip-lg b${isW ? 'w' : is6 ? '6' : is4 ? '4' : 'r'} ${chipCl}">${chipTx}</div>
+        <div class="ball-comm">
+          ${comm ? `<div class="ball-comm-main">${comm}</div>` : ''}
+          ${sub  ? `<div class="ball-comm-sub"><span>${sub}</span></div>` : ''}
+        </div>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+  el.innerHTML = html + '</div>';
 }
 
-function buildBBBEmpty(m){
-  const el=document.getElementById('ss-bbb');
-  const balls=recentBalls(m);
-  let html='<div style="padding:14px">';
-  if(balls.length){
-    html+=`<div class="sc-inn"><div class="sc-head">Recent Balls</div>
-    <div class="ov-balls" style="padding:10px 4px">${balls.map(b=>bchip(b,'bi-chip')).join('')}</div></div>`;
+function buildCommentaryFallback(m) {
+  const el   = document.getElementById('ss-bbb');
+  const sc   = m.score || [];
+  const balls = recentBalls(m);
+  let html = '<div style="padding:4px 0">';
+
+  if (sc.length) {
+    html += `<div class="sc-inn"><div class="sc-head">Current Scores</div>
+      ${sc.map(s => `<div style="display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px">
+        <span style="font-weight:700">${s.inning || '—'}</span>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px">${s.r ?? '—'}${s.w != null ? '/' + s.w : ''} ${s.o ? '(' + s.o + ' ov)' : ''}</span>
+      </div>`).join('')}
+    </div>`;
   }
-  if(m.isLive||m.matchStarted){
-    html+=`<div class="bbb-empty">🏏 Ball-by-ball data loads automatically when you deploy to Vercel.<br>Deploy this project and it will show live over-by-over commentary.</div>`;
-  }else{
-    html+=`<div class="bbb-empty">📅 Ball-by-ball available for live matches only.</div>`;
+
+  if (balls.length) {
+    html += `<div class="sc-inn"><div class="sc-head">Recent Balls</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 4px">
+      ${balls.map(b => bchip(b, 'bchip')).join('')}
+    </div></div>`;
   }
-  el.innerHTML=html+'</div>';
+
+  html += `<div class="bbb-empty">📡 Live ball-by-ball commentary is available when deployed on Vercel.<br>The Python backend scrapes Cricbuzz live commentary automatically.</div></div>`;
+  el.innerHTML = html;
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    ANALYSIS
-═══════════════════════════════════════════ */
-function buildAnalysis(d,m){
-  const el=document.getElementById('ss-analysis');
-  const bat=d.batting||[],bowl=d.bowling||[],tot=d.totals||[],bbb=d.bbb||[];
-  const an=d.analysis||{};
+═══════════════════════════════════════ */
+function buildAnalysis(d, m) {
+  const el   = document.getElementById('ss-analysis');
+  const bat  = d.batting  || [];
+  const bowl = d.bowling  || [];
+  const an   = d.analysis || {};
+  const bbb  = d.bbb      || [];
 
-  const crr=an.crr||(tot[0]&&tot[0].overs?(tot[0].runs/parseFloat(tot[0].overs)).toFixed(2):'—');
-  const fours=an.fours||(bat.reduce((s,b)=>s+(b.fours||0),0));
-  const sixes=an.sixes||(bat.reduce((s,b)=>s+(b.sixes||0),0));
-  const dots=an.dot_pct||(bbb.length?((bbb.filter(b=>b.type==='0'||b.type==='·').length/bbb.length)*100).toFixed(1):'—');
+  const crr    = an.crr ?? '—';
+  const fours  = an.fours  ?? bat.reduce((s, b) => s + (b.fours  || 0), 0);
+  const sixes  = an.sixes  ?? bat.reduce((s, b) => s + (b.sixes  || 0), 0);
+  const dotPct = an.dot_pct ?? '—';
 
-  let html=`<div class="analysis-grid">
+  let html = `<div class="an-grid">
     <div class="an-stat"><div class="an-stat-val">${crr}</div><div class="an-stat-lbl">Run Rate</div></div>
     <div class="an-stat"><div class="an-stat-val">${fours}</div><div class="an-stat-lbl">Fours</div></div>
     <div class="an-stat"><div class="an-stat-val">${sixes}</div><div class="an-stat-lbl">Sixes</div></div>
-    <div class="an-stat"><div class="an-stat-val">${dots}%</div><div class="an-stat-lbl">Dot Ball %</div></div>
+    <div class="an-stat"><div class="an-stat-val">${dotPct}%</div><div class="an-stat-lbl">Dot Ball %</div></div>
   </div>`;
 
-  // Run rate bar per over (from bbb)
-  if(bbb.length){
-    const overRuns={};
-    bbb.forEach(b=>{const ov=b.over??0;overRuns[ov]=(overRuns[ov]||0)+(b.runs||0)+(b.extras||0);});
-    const ovKeys=Object.keys(overRuns).map(Number).sort((a,b)=>a-b);
-    if(ovKeys.length>1){
-      const maxR=Math.max(...Object.values(overRuns));
-      html+=`<div class="rrbar"><div class="rrbar-head">Runs Per Over</div>`;
-      ovKeys.forEach(ov=>{
-        const r=overRuns[ov];
-        const pct=maxR?Math.round((r/maxR)*100):0;
-        html+=`<div class="rrbar-row">
-          <div class="rrbar-lbl">${ov+1}</div>
-          <div class="rrbar-track"><div class="rrbar-fill" style="width:${pct}%"></div></div>
-          <div class="rrbar-val">${r}</div>
-        </div>`;
-      });
-      html+=`</div>`;
-    }
+  // Runs per over bar chart
+  const rpo = an.runs_per_over || [];
+  if (rpo.length > 1) {
+    const max = Math.max(...rpo.map(o => o.runs));
+    html += `<div class="rrbar"><div class="rrbar-head">Runs Per Over</div>`;
+    rpo.forEach(o => {
+      const pct = max ? Math.round((o.runs / max) * 100) : 0;
+      html += `<div class="rrbar-row">
+        <div class="rrbar-lbl">${o.over}</div>
+        <div class="rrbar-track"><div class="rrbar-fill" style="width:${pct}%"></div></div>
+        <div class="rrbar-val">${o.runs}</div>
+      </div>`;
+    });
+    html += `</div>`;
   }
 
   // Top batters
-  const topBat=(an.top_bat||[...bat].sort((a,b)=>b.runs-a.runs).slice(0,3));
-  if(topBat.length){
-    html+=`<div class="an-section"><div class="an-section-head">Top Scorers</div>`;
-    topBat.forEach(b=>{
-      html+=`<div class="an-player-row">
-        <div><div class="an-player-name">${b.name}</div><div class="an-player-sub">${b.balls} balls · ${b.fours??0} fours · ${b.sixes??0} sixes</div></div>
-        <div class="an-player-val">${b.runs}</div>
+  const topBat = (an.top_bat || [...bat].sort((a, b) => b.runs - a.runs).slice(0, 3));
+  if (topBat.length) {
+    html += `<div class="an-sec"><div class="an-sec-head">Top Scorers</div>`;
+    topBat.forEach(b => {
+      html += `<div class="an-row">
+        <div><div class="an-name">${b.name}</div><div class="an-sub">${b.balls}b · ${b.fours ?? 0}×4 · ${b.sixes ?? 0}×6</div></div>
+        <div class="an-val">${b.runs}</div>
       </div>`;
     });
-    html+=`</div>`;
+    html += `</div>`;
   }
 
   // Top bowlers
-  const topBowl=(an.top_bowl||[...bowl].sort((a,b)=>b.wickets-a.wickets||a.eco-b.eco).slice(0,3));
-  if(topBowl.length){
-    html+=`<div class="an-section"><div class="an-section-head">Top Wicket Takers</div>`;
-    topBowl.forEach(b=>{
-      html+=`<div class="an-player-row">
-        <div><div class="an-player-name">${b.name}</div><div class="an-player-sub">${b.overs} ov · ${b.runs} runs · Eco ${b.eco}</div></div>
-        <div class="an-player-val">${b.wickets}W</div>
+  const topBowl = (an.top_bowl || [...bowl].sort((a, b) => b.wickets - a.wickets || a.eco - b.eco).slice(0, 3));
+  if (topBowl.length) {
+    html += `<div class="an-sec"><div class="an-sec-head">Top Wicket Takers</div>`;
+    topBowl.forEach(b => {
+      html += `<div class="an-row">
+        <div><div class="an-name">${b.name}</div><div class="an-sub">${b.overs}ov · ${b.runs}R · Eco ${b.eco}</div></div>
+        <div class="an-val">${b.wickets}W</div>
       </div>`;
     });
-    html+=`</div>`;
+    html += `</div>`;
   }
 
-  el.innerHTML=html||'<div class="bbb-empty">Analysis not available yet</div>';
+  el.innerHTML = html || '<div class="bbb-empty">Analysis not available yet</div>';
 }
 
-function buildAnalysisFromScore(m){
-  const el=document.getElementById('ss-analysis');
-  const sc=m.score||[];
-  if(!sc.length){el.innerHTML='<div class="bbb-empty">Analysis not available yet</div>';return;}
-  let html='<div class="analysis-grid">';
-  sc.forEach(s=>{
-    const crr=s.o&&parseFloat(s.o)?((s.r||0)/parseFloat(s.o)).toFixed(2):'—';
-    html+=`<div class="an-stat"><div class="an-stat-val">${crr}</div><div class="an-stat-lbl">CRR (${s.inning?.split(' ')[0]||'Inn'})</div></div>`;
-  });
-  html+=`</div><div class="bbb-empty" style="margin-top:10px">Full analysis available with Vercel deployment.</div>`;
-  el.innerHTML=html;
+function buildAnalysisFallback(m) {
+  const el = document.getElementById('ss-analysis');
+  const sc = m.score || [];
+  if (!sc.length) { el.innerHTML = '<div class="bbb-empty">Analysis not available yet</div>'; return; }
+  const grid = sc.map(s => {
+    const ov = parseFloat(s.o || '0');
+    const crr = ov ? ((s.r || 0) / ov).toFixed(2) : '—';
+    return `<div class="an-stat"><div class="an-stat-val">${crr}</div><div class="an-stat-lbl">CRR</div></div>
+            <div class="an-stat"><div class="an-stat-val">${s.r ?? '—'}</div><div class="an-stat-lbl">Runs</div></div>`;
+  }).join('');
+  el.innerHTML = `<div class="an-grid">${grid}</div><div class="bbb-empty" style="margin-top:10px">Full analysis available via Vercel deployment.</div>`;
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    PLAYING XI
-═══════════════════════════════════════════ */
-function buildXI(xi){
-  const el=document.getElementById('ss-xi');
-  const teams=Object.keys(xi||{});
-  if(!teams.length){el.innerHTML='<div class="bbb-empty">Playing XI not announced yet.</div>';return;}
-  el.innerHTML=teams.map(t=>`<div class="xi-team">
-    <div class="xi-team-head">${t}</div>
-    ${xi[t].map((p,i)=>`<div class="xi-player"><div class="xi-num">${i+1}</div><div class="xi-name">${p}</div></div>`).join('')}
+═══════════════════════════════════════ */
+function buildXI(xi) {
+  const el = document.getElementById('ss-xi');
+  const teams = Object.keys(xi || {});
+  if (!teams.length) { el.innerHTML = '<div class="bbb-empty">Playing XI not announced yet.</div>'; return; }
+  el.innerHTML = teams.map(t => `<div class="xi-team">
+    <div class="xi-head">${t}</div>
+    ${xi[t].map((p, i) => `<div class="xi-player"><div class="xi-num">${i + 1}</div><div class="xi-name">${p}</div></div>`).join('')}
   </div>`).join('');
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    INFO
-═══════════════════════════════════════════ */
-function buildInfo(m){
-  const el=document.getElementById('ss-info');
-  const t1=safeStr(m.t1||'?'),t2=safeStr(m.t2||'?');
-  const rows=[
-    ['Format',safeStr(m.matchType||'T20').toUpperCase()],
-    ['Date & Time',fmtDT(m.dateTimeGMT)],
-    ['Venue',safeStr(m.venue||'TBD')],
-    ['Status',m.isLive?'🔴 Live':m.matchEnded?'✅ Finished':'📅 Upcoming'],
-    ['Match ID',safeStr(m.id||'—')],
-    ['Live Link',`<a href="${m.url||'#'}" target="_blank" style="color:var(--y)">Open Live ↗</a>`],
+═══════════════════════════════════════ */
+function buildInfo(m) {
+  const el = document.getElementById('ss-info');
+  const rows = [
+    ['Format',   safeStr(m.matchType || 'T20').toUpperCase()],
+    ['Date & Time', fmtDT(m.dateTimeGMT)],
+    ['Venue',    safeStr(m.venue || 'TBD')],
+    ['Status',   m.isLive ? '🔴 Live' : m.matchEnded ? '✅ Finished' : '📅 Upcoming'],
+    ['Match ID', safeStr(m.id || '—')],
+    ['Live Link', `<a href="${m.url || '#'}" target="_blank" style="color:var(--y)">Open Live ↗</a>`],
   ];
-  el.innerHTML=`<div class="ib"><div class="ib-head">Match Details</div>
-    ${rows.map(([k,v])=>`<div class="ir"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('')}
+  el.innerHTML = `<div class="ib"><div class="ib-head">Match Details</div>
+    ${rows.map(([k, v]) => `<div class="ir"><span class="ik">${k}</span><span class="iv">${v}</span></div>`).join('')}
   </div>
   <div class="ib"><div class="ib-head">Teams</div>
-    ${[t1,t2].map(tn=>`<div class="ir"><div style="display:flex;align-items:center;gap:9px">
-      <div style="width:30px;height:30px;border-radius:50%;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">${logoEl(tn,30)}</div>
-      <span style="font-weight:800;font-size:13px">${tn}</span>
-    </div></div>`).join('')}
+    ${[m.t1, m.t2].filter(Boolean).map(tn => `<div class="ir">
+      <div style="display:flex;align-items:center;gap:9px">${makeLogo(tn, 28)}<span style="font-weight:800;font-size:13px">${tn}</span></div>
+    </div>`).join('')}
   </div>`;
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    SHEET TABS
-═══════════════════════════════════════════ */
-function shTab(name,btn){
-  ['ss-sc','ss-bbb','ss-analysis','ss-xi','ss-info'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  const map={sc:'ss-sc',bbb:'ss-bbb',analysis:'ss-analysis',xi:'ss-xi',info:'ss-info'};
+═══════════════════════════════════════ */
+function shTab(name, btn) {
+  ['ss-sc','ss-bbb','ss-analysis','ss-xi','ss-info'].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = { sc:'ss-sc', bbb:'ss-bbb', analysis:'ss-analysis', xi:'ss-xi', info:'ss-info' };
   document.getElementById(map[name]).classList.add('on');
-  document.querySelectorAll('.st').forEach(b=>b.classList.remove('on'));
-  if(btn)btn.classList.add('on');
-  else{const i={sc:0,bbb:1,analysis:2,xi:3,info:4}[name];document.querySelectorAll('.st')[i]?.classList.add('on');}
+  document.querySelectorAll('.st').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  else { const i = {sc:0,bbb:1,analysis:2,xi:3,info:4}[name]; document.querySelectorAll('.st')[i]?.classList.add('on'); }
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    MAIN TABS + BOTTOM NAV
-═══════════════════════════════════════════ */
-function switchTab(name,btn){
-  ['live','upcoming','ipl','series'].forEach(t=>document.getElementById('tp-'+t).classList.remove('on'));
+═══════════════════════════════════════ */
+function switchTab(name, btn) {
+  ['live','upcoming','ipl','series'].forEach(t => document.getElementById('tp-'+t).classList.remove('on'));
   document.getElementById('tp-'+name).classList.add('on');
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
 }
-function bnSwitch(el,name){
-  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
+
+function bnSwitch(el, name) {
+  document.querySelectorAll('.bn').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
-  const btn=[...document.querySelectorAll('.tab')].find(b=>b.getAttribute('onclick')?.includes(`'${name}'`));
-  if(btn){switchTab(name,btn);document.querySelector('.page').scrollTop=0;}
+  const btn = [...document.querySelectorAll('.tab')].find(b => b.getAttribute('onclick')?.includes(`'${name}'`));
+  if (btn) { switchTab(name, btn); document.querySelector('.page').scrollTop = 0; }
 }
 
-/* ═══════════════════════════════════════════
-   COUNTDOWN TIMER
-═══════════════════════════════════════════ */
-function startCd(){
-  clearInterval(cdT);cd=30;
-  cdT=setInterval(()=>{
+/* ═══════════════════════════════════════
+   COUNTDOWN REFRESH
+═══════════════════════════════════════ */
+function startCd() {
+  clearInterval(cdT); cd = 30;
+  cdT = setInterval(() => {
     cd--;
-    const el=document.getElementById('cdTxt');
-    if(el)el.textContent=`↻ ${cd}s`;
-    if(cd<=0){cd=30;loadAll();}
-  },1000);
+    const el = document.getElementById('cdTxt');
+    if (el) el.textContent = `↻ ${cd}s`;
+    if (cd <= 0) { cd = 30; loadAll(); }
+  }, 1000);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    SEARCH
-═══════════════════════════════════════════ */
-function doSearch(){
-  const q=prompt('🔍 Search match or team:');
-  if(!q)return;
-  const f=ALL.find(m=>[m.t1,m.t2,m.name,m.series].some(s=>typeof s==='string'&&s.toLowerCase().includes(q.toLowerCase())));
-  if(f)openSheet(JSON.stringify(f));
+═══════════════════════════════════════ */
+function doSearch() {
+  const q = prompt('🔍 Search team or match:');
+  if (!q) return;
+  const f = ALL.find(m => [m.t1, m.t2, m.name, m.series].some(s => typeof s === 'string' && s.toLowerCase().includes(q.toLowerCase())));
+  if (f) openSheet(JSON.stringify(f));
   else alert(`No matches found for "${q}"`);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════
    ENTER APP
-═══════════════════════════════════════════ */
-function enterApp(){
+═══════════════════════════════════════ */
+function enterApp() {
   document.getElementById('splash').classList.add('exit');
-  setTimeout(()=>{
-    document.getElementById('splash').style.display='none';
+  setTimeout(() => {
+    document.getElementById('splash').style.display = 'none';
     document.getElementById('app').classList.add('show');
-    document.getElementById('botnav').style.display='flex';
-    loadAll();startCd();
-  },580);
+    document.getElementById('botnav').style.display = 'flex';
+    loadAll();
+    startCd();
+  }, 580);
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
 </script>
 </body>
 </html>
